@@ -14,15 +14,15 @@ import Button from '@mui/material/Button';
 import PersonIcon from '@mui/icons-material/Person';
 import LockIcon from '@mui/icons-material/Lock';
 import { Divider } from '@mui/material';
-import Footer from '../Components/Footer';
-import Home from './Components/Home';
-import { AddPoem } from '../appfeatures/poems/AddPoem';
-import { Poem } from "./Components/Poem"
-import { Articles } from "./Components/Articles"
-import { Stories } from "./Components/Stories"
-import { Video } from "./Components/Video"
-import { About } from "./About"
-import { MotivationalMsg } from "./Components/MotivationalMsg"
+import Footer from './Components/Footer';
+import Home from './pages/Home';
+import { AddPoem } from './appfeatures/poems/AddPoem';
+import { Poem } from "./pages/Poem"
+import { Articles } from "./pages/Articles"
+import { Stories } from "./pages/Stories"
+import { Video } from "./pages/Video"
+import { About } from "./pages/About"
+import { MotivationalMsg } from "./pages/MotivationalMsg"
 // Import icons for the drawer
 import BookIcon from '@mui/icons-material/Book';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
@@ -231,7 +231,7 @@ function MainLayout(props) {
   );
 }
 
-Layout.propTypes = {
+MainLayout.propTypes = {
   window: PropTypes.func,
 };
 

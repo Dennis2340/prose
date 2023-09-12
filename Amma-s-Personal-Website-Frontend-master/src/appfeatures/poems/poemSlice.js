@@ -2,7 +2,7 @@ import { createSlice, nanoid, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import sub from "date-fns/sub";
 import api from "../../api";
-const POEM_URL = "http://localhost:3800/poem"
+const POEM_URL = "http://localhost:3600/poem"
 
 const initialState = {
     poems: [],

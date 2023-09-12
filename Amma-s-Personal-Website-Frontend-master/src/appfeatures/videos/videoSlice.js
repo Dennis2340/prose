@@ -3,7 +3,7 @@ import { createSlice, nanoid, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import sub from "date-fns/sub";
 import api from "../../api";
-const VIDEO_URL = "http://localhost:3800/video"
+const VIDEO_URL = "http://localhost:3600/video"
 
 const initialState = {
     videos: [],

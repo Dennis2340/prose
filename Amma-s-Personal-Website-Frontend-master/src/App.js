@@ -27,6 +27,7 @@ import { SingleVideo } from "./appfeatures/videos/SingleVideo"
 import { useSelector } from 'react-redux';
 import { EditUser } from "./appfeatures/about/EditUser"
 import Admin from "./pages/Admin"
+import MainLayout from "./Layout"
 
 
 const App = () => {
@@ -37,7 +38,7 @@ const App = () => {
   return(
   
     <Routes>
-         <Route path="/" element={<Layout/>}/>
+         <Route path="/" element={<MainLayout/>}/>
          <Route path="admin" element={<Admin/>}/>
          {/* These are the poem routes */}
          <Route path="poems" element={<Poem/>}/>

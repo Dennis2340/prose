@@ -2,7 +2,7 @@ import { createSlice, nanoid, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import sub from "date-fns/sub";
 import api from "../../api";
-const ARTICLE_URL = "http://localhost:3800/article"
+const ARTICLE_URL = "http://localhost:3600/article"
 
 const initialState = {
     articles: [],
