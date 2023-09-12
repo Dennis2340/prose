@@ -41,13 +41,11 @@ useEffect(() => {
 
   return (
     <Box>
-      <ResponsiveDrawer />
-
       <Box
         sx={{
-          marginLeft: { xs: 5, sm: 32 },
+          marginLeft: { xs: 5, sm: 36 },
           marginTop: -3,
-          width: "75%"
+          width: {xs : "100%", sm: "85%", md: "85%",lg: "95%"}
         }}
       >
         <Typography variant="body1" component="p" paragraph>

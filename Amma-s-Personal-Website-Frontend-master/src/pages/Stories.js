@@ -57,12 +57,12 @@ const Stories = props => {
     return (
   <>
     <div>
-       <ResponsiveDrawer/>
+       
         <Box
         sx={{
-            marginLeft: {xs: 1,sm: 32},
+            marginLeft: {xs: 1,sm: 36},
             marginTop: -3,
-            width: "75%"
+            width: {xs : "100%", sm: "85%", md: "85%",lg: "95%"}
           }}
         >
           <Box sx={{marginLeft: {xs: 14, sm:45}, marginBottom: 5}}>

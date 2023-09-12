@@ -2,7 +2,7 @@ import { createSlice, nanoid, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import sub from "date-fns/sub";
 import api from "../../api";
-const MOTMSG_URL = "https://ammas-sites-api.onrender.com/motMessage"
+const MOTMSG_URL = "http://localhost:3800/motMessage"
 
 const initialState = {
     motmessages: [],

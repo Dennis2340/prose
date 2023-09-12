@@ -2,7 +2,7 @@ import { createSlice, nanoid, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import sub from "date-fns/sub";
 import api from "../../api";
-const STORY_URL = "https://ammas-sites-api.onrender.com/story"
+const STORY_URL = "http://localhost:3800/story"
 
 const initialState = {
     stories: [],

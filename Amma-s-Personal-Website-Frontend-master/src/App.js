@@ -26,11 +26,7 @@ import { AddVideo } from "./appfeatures/videos/AddVideo"
 import { SingleVideo } from "./appfeatures/videos/SingleVideo"
 import { useSelector } from 'react-redux';
 import { EditUser } from "./appfeatures/about/EditUser"
-
-
-
-
-
+import Admin from "./pages/Admin"
 
 
 const App = () => {
@@ -41,8 +37,8 @@ const App = () => {
   return(
   
     <Routes>
-         <Route path="/" element={<Home/>}/>
-
+         <Route path="/" element={<Layout/>}/>
+         <Route path="admin" element={<Admin/>}/>
          {/* These are the poem routes */}
          <Route path="poems" element={<Poem/>}/>
           <Route  path="addpoem"  element={isAuthenticated ? <AddPoem/> : <Home/>}/>

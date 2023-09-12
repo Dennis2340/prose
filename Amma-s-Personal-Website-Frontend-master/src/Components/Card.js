@@ -18,7 +18,7 @@ const bull = (
 
 export default function BasicCard({poem}) {
   return (
-    <Card sx={{ minWidth: 275, marginBottom: 5, width: {xs : "50%", sm: "100%"} }}>
+    <Card sx={{ minWidth: 275, marginBottom: 5, width: {xs : "100%", sm: "85%", md: "85%",lg: "95%"} }}>
       <CardContent>
         <Typography  variant='h5' color="text.secondary" >
           {poem.poemTitle}
