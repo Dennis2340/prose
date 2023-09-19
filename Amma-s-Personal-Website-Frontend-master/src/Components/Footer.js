@@ -55,7 +55,7 @@ const Footer = () => {
             </Grid>
           </Grid>
         </Box>
-        <Box py={2} sx={{ backgroundColor: 'primary.main',marginTop: -2, color: 'white', textAlign: 'center' }}>
+        <Box  sx={{ backgroundColor: 'primary.main',marginTop: -2, color: 'white', textAlign: 'center' }}>
           <Typography variant="body2" color="textSecondary">
             &copy; {new Date().getFullYear()} Your App Name. All rights reserved.
           </Typography>

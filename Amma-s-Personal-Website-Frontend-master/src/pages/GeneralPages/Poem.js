@@ -3,11 +3,11 @@ import PropTypes from 'prop-types';
 import { Box, Typography, Grid } from '@mui/material';
 import { Outlet } from 'react-router-dom';
 import { useSelector, useDispatch } from "react-redux"
-import { fetchPoems, getPoemError, getPoemStatus,getAllPoems } from '../appfeatures/poems/poemSlice';
-import LinearIndeterminate from '../Components/LoadingPage';
-import PoemCard from '../Components/Card';
+import { fetchPoems, getPoemError, getPoemStatus,getAllPoems } from '../../appfeatures/poems/poemSlice';
+import LinearIndeterminate from '../../Components/LoadingPage';
+import PoemCard from '../../Components/GeneralPageCompnent/Card';
 
-const Poem = ({poemId}) => {
+const Poem = props => {
 
   const dispatch = useDispatch()
 
@@ -52,7 +52,7 @@ const Poem = ({poemId}) => {
     
    content = orderedPoem.map((poem, index) => (
     <Grid item key={`${poem._id}-${index}`} xs={12} sm={6} md={6}>
-      <PoemCard poemId={poemId} poem={poem}/>
+      <PoemCard poem={poem} />
     </Grid>
     ))
   }

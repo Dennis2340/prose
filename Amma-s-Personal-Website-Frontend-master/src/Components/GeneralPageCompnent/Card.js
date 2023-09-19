@@ -1,8 +1,7 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { Card, CardContent, Typography, Button } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { styled } from '@mui/system';
-import { MyAdminContext } from '../pages/Admin';
 
 const StyledCard = styled(Card)(
   ({ theme }) => ({
@@ -31,17 +30,7 @@ const StyledButton = styled(Button)(
   })
 );
 
-const PoemCard = ({poem, poemId}) => {
-
-  const [active, setActive] = useContext(MyAdminContext)
-
-  const handleClick = (id) => {
-    setActive("SinglePoem")
-    poemId(id)
-  }
-
-
-  
+const PoemCard = ({poem}) => {
   return (
     <StyledCard sx={{ marginTop: 4,}}>
       <StyledCardContent>
@@ -58,7 +47,8 @@ const PoemCard = ({poem, poemId}) => {
           {poem.poemAuthor ? `by ${poem.poemAuthor}` : 'Unknown Author'}
         </Typography>
         <StyledButton
-          onClick={()=> handleClick(poem._id)}
+          component={Link}
+          to={`/singlepoem/${poem._id}`}
           variant="outlined"
           color="primary"
         >

@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Box, Typography, Grid, Link } from '@mui/material';
-import BasicCard from '../Components/StoryCard';
+import BasicCard from '../../Components/StoryCard';
 import { Outlet } from 'react-router-dom';
 import { useSelector, useDispatch } from "react-redux"
-import { fetchStories, getAllStories, getStoryError, getStoryStatus } from '../appfeatures/stories/storySlice';
-import LinearIndeterminate from '../Components/LoadingPage';
-import StoryCard from '../Components/StoryCard';
+import { fetchStories, getAllStories, getStoryError, getStoryStatus } from '../../appfeatures/stories/storySlice';
+import LinearIndeterminate from '../../Components/LoadingPage';
+import StoryCard from '../../Components/StoryCard';
 const Stories = props => {
 
   const dispatch = useDispatch()

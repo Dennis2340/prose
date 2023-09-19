@@ -1,21 +1,20 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { TextField, Button,Box, Typography } from '@mui/material';
 import DenseAppBar from '../../Components/BasicBar';
 import { useFormik } from 'formik';
-import { addNewMotMsg } from './motmsgSlice';
+import { addNewMotMsg, fetchMotMsg } from './motmsgSlice';
 import { useEffect } from 'react';
 import { useSelector, useDispatch } from "react-redux"
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import LinearProgress from '@mui/material/LinearProgress';
+import { MyAdminContext } from '../../pages/Admin';
 const AddMotMsg = props => {
 
-    const navigate = useNavigate()
-    
     const dispatch = useDispatch()
     const [addRequestStatus, setAddRequestStatus] = useState("idle")
-    
+    const [active, setActive] = useContext(MyAdminContext)
     const formik = useFormik({
         initialValues: {
             motMessageTitle: "",
@@ -28,13 +27,12 @@ const AddMotMsg = props => {
                 try{
                   setAddRequestStatus("pending")
                  await dispatch(addNewMotMsg(values))  
-
+                 await dispatch(fetchMotMsg())
                   values.motMessageAuthor = ""
                   values.motMessageDetails = ""
                   values.motMessageTitle = ""
                   values.motMessageGenre = ""
-                  navigate("/motmsg") 
-                  window.location.reload()
+                  setActive("Motivational_Msg")
                   
                 }catch(error){
                     console.log(error.message)
@@ -45,12 +43,8 @@ const AddMotMsg = props => {
         }
     })
     return (
-    <div>
-        <Box sx={{ marginBottom: 10}}>
-        <DenseAppBar/>
-        </Box>
-        
-        <Box sx={{textAlign: "center", marginTop: 12}}>
+    <div style={{maxWidth: "708.667px"}}>  
+        <Box sx={{textAlign: "center",}}>
             <Typography variant="h4" component="h3">
                 Add New Motivational Message
             </Typography>
@@ -58,7 +52,7 @@ const AddMotMsg = props => {
 
         <Box
         sx={{
-            width: {xs: "75%", sm: "50%"},
+            
             display: {xs:"block", sm: "block"},
             marginTop: 5,
             marginLeft: "auto",

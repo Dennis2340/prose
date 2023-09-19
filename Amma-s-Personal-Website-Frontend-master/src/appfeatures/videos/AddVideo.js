@@ -1,17 +1,19 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import { TextField, Button, Box, Typography, Input } from '@mui/material';
 import DenseAppBar from '../../Components/BasicBar';
 import { useFormik } from 'formik';
 import { useDispatch } from 'react-redux';
-import { addNewVideo } from './videoSlice';
+import { addNewVideo, fetchVideos } from './videoSlice';
 import { useNavigate } from 'react-router-dom';
 import LinearProgress from '@mui/material/LinearProgress'
+import { MyAdminContext } from '../../pages/Admin';
+
 const AddVideo = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [addRequestStatus, setAddRequestStatus] = useState('idle');
-
+  const [active, setActive] = useContext(MyAdminContext)
   const formik = useFormik({
     initialValues: {
       title: '',
@@ -22,9 +24,8 @@ const AddVideo = () => {
       try {
         setAddRequestStatus('pending');
         await dispatch(addNewVideo(values));
-        navigate('/video');
-        window.location.reload()
-        
+        await dispatch(fetchVideos())
+        setActive("Videos")
       } catch (error) {
         console.log(error.message);
       }
@@ -36,19 +37,18 @@ const AddVideo = () => {
   };
 
   return (
-    <div>
-      <DenseAppBar />
-      <Box sx={{ textAlign: 'center', marginTop: 12 }}>
+    <div style={{maxWidth: "708.667px"}}>
+     
+      <Box sx={{textAlign: "center", }}>
         <Typography variant="h4" component="h3">
           Add New Video
         </Typography>
         <Box
           sx={{
-            width: { xs: '75%', sm: '50%' },
-            display: { xs: 'block', sm: 'block' },
+            display: {xs:"block", sm: "block"},
             marginTop: 5,
-            marginLeft: 'auto',
-            marginRight: 'auto',
+            marginLeft: "auto",
+            marginRight: "auto"
           }}
         >
           <div>

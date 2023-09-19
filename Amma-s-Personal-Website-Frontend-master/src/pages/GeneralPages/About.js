@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Box, Typography } from '@mui/material';
-import BasicCard from '../Components/AboutCard';
-import ResponsiveDrawer from "../Components/UserAppBar"
+import BasicCard from '../../Components/AboutCard';
+import ResponsiveDrawer from "../../Components/UserAppBar"
 import { Outlet } from 'react-router-dom';
 import { useSelector, useDispatch } from "react-redux"
-import { fetchUser, getUserError, getUserStatus,getUserInfo } from '../appfeatures/about/aboutSlice';
-import LinearIndeterminate from '../Components/LoadingPage';
+import { fetchUser, getUserError, getUserStatus,getUserInfo } from '../../appfeatures/about/aboutSlice';
+import LinearIndeterminate from '../../Components/LoadingPage';
 
 const About = props => {
 

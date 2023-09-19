@@ -1,40 +1,62 @@
-import * as React from 'react';
-import Box from '@mui/material/Box';
-import Card from '@mui/material/Card';
-import CardActions from '@mui/material/CardActions';
-import CardContent from '@mui/material/CardContent';
-import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
-import { NavLink } from 'react-router-dom';
+import React from 'react';
+import { Card, CardContent, Typography, Button } from '@mui/material';
+import { Link } from 'react-router-dom';
+import { styled } from '@mui/system';
 
-const bull = (
-    <Box
-      component="span"
-      sx={{ display: 'inline-block', mx: '2px', transform: 'scale(0.8)' }}
-    >
-      •
-    </Box>
+const StyledCard = styled(Card)(
+  ({ theme }) => ({
+    width: '100%',
+    height: '100%',
+    textAlign: 'center',
+    maxWidth: 500,
+    margin: 'auto',
+    boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
+    transition: '0.3s',
+    '&:hover': {
+      boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.2)',
+    },
+  })
+);
+
+const StyledCardContent = styled(CardContent)(
+  ({ theme }) => ({
+    padding: theme.spacing(2),
+  })
+);
+
+const StyledButton = styled(Button)(
+  ({ theme }) => ({
+    marginTop: theme.spacing(3),
+  })
+);
+
+const MotMsgCard = ({motmsg}) => {
+  return (
+    <StyledCard sx={{ marginTop: 4,}}>
+      <StyledCardContent>
+        <Typography variant="h5" color="textSecondary">
+          {motmsg.motMessageTitle}
+        </Typography>
+        <Typography variant="body2" color="textSecondary">
+          {motmsg.motMessageGenre}
+        </Typography>
+        <Typography variant="body2" color="textSecondary">
+          {motmsg.motMessageDetails?.substring(0, 40) + '...'}
+        </Typography>
+        <Typography variant="body2" color="textSecondary">
+          {motmsg.motMessageAuthor ? `by ${motmsg.motMessageAuthor}` : 'Unknown Author'}
+        </Typography>
+        <StyledButton
+          component={Link}
+          to={`/singlepoem/${motmsg._id}`}
+          variant="outlined"
+          color="primary"
+        >
+          View
+        </StyledButton>
+      </StyledCardContent>
+    </StyledCard>
   );
+};
 
-  export default function BasicCard({motmsg}) {
-    return (
-      <Card sx={{ minWidth: 275, marginBottom: 5, width: {xs : "50%", sm: "100%"} }}>
-        <CardContent>
-          <Typography  variant='h5' color="text.secondary" >
-             {motmsg.motMessageTitle}
-          </Typography>
-          <Typography sx={{marginTop: 2}} variant="body2">
-            {motmsg.motMessageDetails?.substring(0,40) + "..."}
-          </Typography>
-          <Typography sx={{ marginTop: 1}} variant="body2">
-            {
-              motmsg.motMessageAuthor ? `by ${motmsg.motMessageAuthor}` : "unknown author"
-            }
-            
-          </Typography>
-          <NavLink to = {`/singlemotmsg/${motmsg._id}`}>view</NavLink>
-        </CardContent>
-        
-      </Card>
-    );
-  }
+export default MotMsgCard;

@@ -28,7 +28,7 @@ const SingleVideo = () => {
     const fetchVideoUrl = async () => {
       try {
         dispatch(fetchVideos())
-        const response = await axios.get(`https://ammas-sites-api.onrender.com/getSingleVideo/${id}`, {
+        const response = await axios.get(`http://localhost:3600/getSingleVideo/${id}`, {
           responseType: 'blob', // Set the response type to 'blob' to handle binary data
         });
 

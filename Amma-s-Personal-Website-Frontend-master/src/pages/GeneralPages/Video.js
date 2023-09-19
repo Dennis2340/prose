@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Box, Typography, Grid } from '@mui/material';
-import  { VideoComp } from '../Components/Video';
+import  { VideoComp } from '../../Components/Video';
 import { Outlet } from 'react-router-dom';
 import { useSelector, useDispatch } from "react-redux"
-import { fetchVideos, getVideoError, getVideoStatus,getAllVideos } from '../appfeatures/videos/videoSlice';
-import LinearIndeterminate from '../Components/LoadingPage';
+import { fetchVideos, getVideoError, getVideoStatus,getAllVideos } from '../../appfeatures/videos/videoSlice';
+import LinearIndeterminate from '../../Components/LoadingPage';
 const Video = props => {
 
 

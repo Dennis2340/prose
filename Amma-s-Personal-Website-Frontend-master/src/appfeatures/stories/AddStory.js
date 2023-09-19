@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { TextField, Button,Box, Typography } from '@mui/material';
 import DenseAppBar from '../../Components/BasicBar';
@@ -6,13 +6,15 @@ import { useFormik } from 'formik';
 import { useEffect } from 'react';
 import { useSelector, useDispatch } from "react-redux"
 import { useState } from 'react';
-import { addNewStory } from './storySlice';
+import { addNewStory, fetchStories } from './storySlice';
 import { useNavigate } from 'react-router-dom';
 import LinearProgress from '@mui/material/LinearProgress';
+import { MyAdminContext } from '../../pages/Admin';
 const AddStory = props => {
 
     const navigate = useNavigate()
-
+    
+    const [active, setActive] = useContext(MyAdminContext)
     const dispatch = useDispatch()
     const [addRequestStatus, setAddRequestStatus] = useState("idle")
 
@@ -26,16 +28,16 @@ const AddStory = props => {
         onSubmit: async(values) => {
             if(values){
             try{
-                console.log(values)
+               
               setAddRequestStatus("pending")
               await dispatch(addNewStory(values))  
-                 
+              await dispatch(fetchStories())
               values.storyAuthor = ""
               values.storyDetailed = ""
                values.storyTitle = ""
                values.storyGenre = ""
-                navigate("/stories") 
-                window.location.reload()
+               setActive("Stories")
+                
               
             }catch(error){
                 console.log(error.message)
@@ -47,9 +49,9 @@ const AddStory = props => {
     })
     
     return (
-    <div>
-       <DenseAppBar/>
-         <Box sx={{textAlign: "center", marginTop: 12}}>
+    <div style={{maxWidth: "708.667px"}}>
+       
+         <Box sx={{textAlign: "center",}}>
             <Typography variant="h4" component="h3">
                 Add New Story
             </Typography>
@@ -57,7 +59,7 @@ const AddStory = props => {
 
         <Box
         sx={{
-            width: {xs: "75%", sm: "50%"},
+            
             display: {xs:"block", sm: "block"},
             marginTop: 5,
             marginLeft: "auto",

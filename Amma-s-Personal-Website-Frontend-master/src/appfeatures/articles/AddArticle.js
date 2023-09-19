@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { TextField, Button,Box, Typography } from '@mui/material';
 import DenseAppBar from '../../Components/BasicBar';
@@ -9,13 +9,12 @@ import { useSelector, useDispatch } from "react-redux"
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import LinearProgress from '@mui/material/LinearProgress';
+import { MyAdminContext } from '../../pages/Admin';
 const AddArticle = props => {
- 
-    const navigate = useNavigate()
 
     const dispatch = useDispatch()
     const [addRequestStatus, setAddRequestStatus] = useState("idle")
-    
+    const [active,setActive] = useContext(MyAdminContext)
     const formik = useFormik({
         initialValues: {
             articleTitle: "",
@@ -33,8 +32,7 @@ const AddArticle = props => {
                   values.articleDetails = ""
                   values.articleTitle = ""
                   values.articleGenre = ""
-                  navigate("/articles")  
-                  window.location.reload()
+                  setActive("Articles")
                   
                 }catch(error){
                     console.log(error.message)
@@ -47,18 +45,15 @@ const AddArticle = props => {
 
     // console.log("form values", formik.values)
     return (
-    <div>
-        <Box sx={{ marginBottom: 10}}>
-        <DenseAppBar/>
-        </Box>
-        <Box sx={{textAlign: "center", marginTop: 12}}>
+    <div style={{maxWidth: "708.667px"}}>
+        <Box sx={{textAlign: "center", }}>
             <Typography variant="h4" component="h3">
                 Add New Article
             </Typography>
         </Box>
         <Box
         sx={{
-            width: {xs: "75%", sm: "50%"},
+            
             display: {xs:"block", sm: "block"},
             marginTop: 5,
             marginLeft: "auto",

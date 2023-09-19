@@ -53,7 +53,7 @@ export default function BasicCard({user}) {
         }}
         >
         <img 
-        src={`https://ammas-sites-api.onrender.com/user/userImage/${mainUrl}`} 
+        src={`http://localhost:3600/user/userImage/${mainUrl}`} 
         alt='The owner is smiling'
         style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }}
         />

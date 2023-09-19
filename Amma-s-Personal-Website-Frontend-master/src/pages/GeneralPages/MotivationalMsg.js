@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Box, Typography, Grid, Link } from '@mui/material';
-import BasicCard from '../Components/MotMsgCard'
+import BasicCard from '../../Components/MotMsgCard'
 import { Outlet } from 'react-router-dom';
 import { useSelector, useDispatch } from "react-redux"
-import { fetchMotMsg, getMotMsgError, getMotMsgStatus,getAllMotMsg } from '../appfeatures/motivationalmsg/motmsgSlice';
-import LinearIndeterminate from '../Components/LoadingPage';
-import MotMsgCard from '../Components/MotMsgCard';
+import { fetchMotMsg, getMotMsgError, getMotMsgStatus,getAllMotMsg } from '../../appfeatures/motivationalmsg/motmsgSlice';
+import LinearIndeterminate from '../../Components/LoadingPage';
+import MotMsgCard from '../../Components/MotMsgCard';
 const MotivationalMsg = props => {
 
   const dispatch = useDispatch()

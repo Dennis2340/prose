@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Box, Typography, Grid, Link } from '@mui/material';
-import BasicCard from '../Components/ArticleCard';
+import BasicCard from '../../Components/ArticleCard';
 import { Outlet } from 'react-router-dom';
 import { useSelector, useDispatch } from "react-redux"
-import { fetchArticles, getAllArticles, getArticleError, getArticleStatus } from '../appfeatures/articles/articleSlice';
-import LinearIndeterminate from '../Components/LoadingPage';
-import ArticleCard from '../Components/ArticleCard';
+import { fetchArticles, getAllArticles, getArticleError, getArticleStatus } from '../../appfeatures/articles/articleSlice';
+import LinearIndeterminate from '../../Components/LoadingPage';
+import ArticleCard from '../../Components/ArticleCard';
 const Articles = props => {
 
 

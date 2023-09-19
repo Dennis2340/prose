@@ -1,16 +1,18 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { TextField, Button,Box, Typography } from '@mui/material';
 import DenseAppBar from '../../Components/BasicBar';
 import { useFormik } from 'formik';
-import { addNewPoem } from './poemSlice';
+import { addNewPoem, fetchPoems} from './poemSlice';
 import { useEffect } from 'react';
 import { useSelector, useDispatch } from "react-redux"
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import LinearProgress from '@mui/material/LinearProgress';
+import { MyAdminContext } from '../../pages/Admin';
 const AddPoem = props => {
 
+    const [active, setActive] = useContext(MyAdminContext)
     const navigate = useNavigate()
 
     const dispatch = useDispatch()
@@ -28,13 +30,12 @@ const AddPoem = props => {
             try{
               setAddRequestStatus("pending")
               await dispatch(addNewPoem(values)) 
+              await dispatch(fetchPoems())
               values.poemAuthor = ""
               values.poemDetails = ""
               values.poemTitle = ""
               values.poemGenre = ""
-              navigate("/poems") 
-              window.location.reload()
-              
+              setActive("Poems")
             }catch(error){
                 console.log(error.message)
             }
@@ -45,23 +46,16 @@ const AddPoem = props => {
     })
     
     return (
-    <div>
-        <Box sx={{ marginBottom: 10}}>
-        <DenseAppBar/>
-        </Box>
-        
-         <Box sx={{textAlign: "center", marginTop: 12}}>
-            <Typography style={{marginTop: 12}} variant="h4" component="h3">
+    <div style={{maxWidth: "708.667px"}}>
+         <Box sx={{textAlign: "center", display: "flex", justifyContent: "center", alignItmes: "center",}}>
+            <Typography variant="h4" component="h3">
                 Add New Poem
             </Typography>
         </Box>
         <Box
         sx={{
-            width: {xs: "75%", sm: "50%"},
             display: {xs:"block", sm: "block"},
             marginTop: 5,
-            marginLeft: "auto",
-            marginRight: "auto"
           }}
         >
             <div>
