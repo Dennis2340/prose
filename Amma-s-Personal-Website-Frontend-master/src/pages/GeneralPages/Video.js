@@ -1,61 +1,40 @@
-import React, { useEffect } from 'react';
-import PropTypes from 'prop-types';
+import React from 'react';
 import { Box, Typography, Grid } from '@mui/material';
-import  { VideoComp } from '../../Components/Video';
-import { Outlet } from 'react-router-dom';
-import { useSelector, useDispatch } from "react-redux"
-import { fetchVideos, getVideoError, getVideoStatus,getAllVideos } from '../../appfeatures/videos/videoSlice';
-import LinearIndeterminate from '../../Components/LoadingPage';
-const Video = props => {
+import  { VideoComp } from '../../Components/GeneralPageCompnent/Video';
+import { fetchVideosQuery, } from '../../appfeatures/videos/videoSlice';
+import { useQuery, useQueryClient } from 'react-query';
+import SkeletonCard from '../../Components/SkeletonCard';
+const Video = ({videoId}) => {
 
+  const queryClient = useQueryClient()
+  const { data: videos, isLoading, isError, error, isSuccess } = useQuery('videos', fetchVideosQuery); // Replace 'fetchStories' with your fetch function
 
-  const dispatch = useDispatch()
+  console.log(videos)
 
-  const videoList = useSelector(getAllVideos)
-  console.log(videoList)
-  const error = useSelector(getVideoError)
-  const videoStatus = useSelector(getVideoStatus)
-
-
-  useEffect(() => {
-    if(videoStatus === "idle"){
-      dispatch(fetchVideos())
-      
-    }
-   }, [videoStatus, dispatch])
-
-   useEffect(() => {
-    if (videoStatus === "succeeded") {
-      const orderedVideos = videoList.slice().sort((a, b) => {
-        return new Date(b.createdAt) - new Date(a.createdAt);
-      })
-      console.log(orderedVideos)
-    }
-  }, [videoList, videoStatus])
-  
    let content;
-   if(videoStatus === "loading"){
-    return (
-      <Box sx={{ marginTop: 25,}}>
-        <LinearIndeterminate/>
-      </Box>
-    )
+   if(isLoading){
+    content = Array.from({ length: 8 }).map((_, index) => (
+      <Grid item key={index} xs={12} sm={6} md={6}>
+        <SkeletonCard />
+      </Grid>
+    ));
    }
-   else if(videoStatus === "succeeded"){
-   const orderedVideo = videoList.slice().sort((a,b) => {
+   else if(isSuccess){
+   const orderedVideo = videos.videos.slice().sort((a,b) => {
     return new Date(b.createdAt) - new Date(a.createdAt);
   })
 
   content = orderedVideo.map((video, index) => (
     <Grid item key={`${video._id}-${index}`} xs={12} sm={6} md={6}>
-       <VideoComp video={video}/>
+       <VideoComp video={video} videoId={videoId}/>
     </Grid>
   ))
 }
 
-else if (videoStatus === "failed"){
-  content = <p>error maybe internet issue</p>
+else if (isError){
+  content = <p>{error}</p>
  }
+ queryClient.setQueryData("videoCache", videos)
     return (
     <Box sx={{
       display: 'flex',

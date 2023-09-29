@@ -1,40 +1,17 @@
-import React, { useEffect } from 'react';
-import PropTypes from 'prop-types';
-import { Box, Typography, Grid, Link } from '@mui/material';
-import BasicCard from '../Components/MotMsgCard'
-import { Outlet } from 'react-router-dom';
-import { useSelector, useDispatch } from "react-redux"
-import { fetchMotMsg, getMotMsgError, getMotMsgStatus,getAllMotMsg } from '../appfeatures/motivationalmsg/motmsgSlice';
+import React from 'react';
+import { Box, Typography, Grid, } from '@mui/material';
+import { fetchMotMsgQuery,  } from '../appfeatures/motivationalmsg/motmsgSlice';
 import LinearIndeterminate from '../Components/LoadingPage';
 import MotMsgCard from '../Components/MotMsgCard';
-const MotivationalMsg = props => {
+import { useQuery, useQueryClient } from 'react-query';
 
-  const dispatch = useDispatch()
+const MotivationalMsg = ({motmsgId}) => {
 
-  const motmsgList = useSelector(getAllMotMsg)
-  console.log(motmsgList)
-  const error = useSelector(getMotMsgError)
-  const motmsgStatus = useSelector(getMotMsgStatus)
-
-  useEffect(() => {
-    if(motmsgStatus === "idle"){
-      dispatch(fetchMotMsg())
-      
-    }
-   }, [motmsgStatus, dispatch])
-
-   useEffect(() => {
-    if (motmsgStatus === "succeeded") {
-      const orderedMotMsg = motmsgList.slice().sort((a, b) => {
-        return new Date(b.createdAt) - new Date(a.createdAt);
-      })
-      console.log(orderedMotMsg)
-    }
-  }, [motmsgList, motmsgStatus])
-
+  const queryClient = useQueryClient()
+  const { data: motmsgs, isLoading, isError, error, isSuccess } = useQuery('motmsgs', fetchMotMsgQuery); // Replace 'fetchStories' with your fetch function
 
    let content;
-   if(motmsgStatus === "loading"){
+   if(isLoading){
     return (
       <Box sx={{ marginTop: 25,}}>
         <LinearIndeterminate/>
@@ -42,21 +19,22 @@ const MotivationalMsg = props => {
     )
    }
 
-   else if(motmsgStatus === "succeeded"){
-    const orderedMotMsg = motmsgList.slice().sort((a, b) => {
+   else if(isSuccess){
+    const orderedMotMsg = motmsgs.motMessages.slice().sort((a, b) => {
       return new Date(b.createdAt) - new Date(a.createdAt);
     });
 
    content = orderedMotMsg.map((motmsg, index) => (
     <Grid item key={`${motmsg._id}-${index}`} xs={12} sm={6} md={6}>
-      <MotMsgCard motmsg={motmsg} />
+      <MotMsgCard motmsg={motmsg} motmsgId={motmsgId}/>
     </Grid>
     ))
    
   }
-  else if (motmsgStatus === "failed"){
-   content = <p>error maybe internet issue</p>
+  else if (isError){
+   content = <p>{error}</p>
   }
+  queryClient.setQueryData("motmsgs", motmsgs)
     return (
     <Box sx={{
       display: 'flex',

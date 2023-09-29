@@ -1,20 +1,67 @@
 import React, { useContext } from 'react';
-import PropTypes from 'prop-types';
 import { TextField, Button,Box, Typography } from '@mui/material';
-import DenseAppBar from '../../Components/BasicBar';
 import { useFormik } from 'formik';
-import { addNewArticle, fetchArticles } from './articleSlice';
-import { useEffect } from 'react';
-import { useSelector, useDispatch } from "react-redux"
+import { addNewArticle, addNewArticleQuery, fetchArticles } from './articleSlice';
+import { useDispatch } from "react-redux"
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import LinearProgress from '@mui/material/LinearProgress';
 import { MyAdminContext } from '../../pages/Admin';
+import { useMutation, useQueryClient, } from 'react-query';
+import Swal from "sweetalert2";
+
 const AddArticle = props => {
 
-    const dispatch = useDispatch()
-    const [addRequestStatus, setAddRequestStatus] = useState("idle")
-    const [active,setActive] = useContext(MyAdminContext)
+    const Toast = Swal.mixin({
+        toast: true,
+        position: 'center',
+        timer: 3000,
+        timerProgressBar: true,
+        showConfirmButton: false,
+        
+      })
+
+    const queryClient = useQueryClient()
+    const addNewArticleMutation = useMutation(addNewArticleQuery, {
+        onMutate: async (newArticleData) => {
+            // Optimistically add the new poem to the cache
+            queryClient.setQueryData('articles', (oldData) => {
+              return {
+                ...oldData,
+                article: [
+                  ...oldData.article,
+                  {
+                    _id: 'temp-id', // Generate a temporary ID for the optimistic update
+                    ...newArticleData,
+                  },
+                ],
+              };
+            });
+          },
+          onError: (error) => {
+              Toast.fire({
+                  icon: 'error',
+                  title: 'Error',
+                  text: error.message,
+              })
+            console.error('Error adding new article:', error);
+          },
+          onSuccess: (data, variables, context) => {
+              // Assuming your backend returns a success status code (e.g., 200)
+                // Display a success toast
+                Toast.fire({
+                  icon: 'success',
+                  title: 'Article Added Successfully',
+                  text: data.message,
+                });
+              
+            },
+          onSettled: () => {
+            // Refetch the poems after the mutation is settled
+            queryClient.invalidateQueries('articles');
+          },
+    })
+
+    const [active, setActive] = useContext(MyAdminContext)
     const formik = useFormik({
         initialValues: {
             articleTitle: "",
@@ -25,13 +72,7 @@ const AddArticle = props => {
         onSubmit: async(values) => {
             if(values){
                 try{
-                  setAddRequestStatus("pending")
-                  await dispatch(addNewArticle(values)) 
-                  await dispatch(fetchArticles())
-                  values.articleAuthor = ""
-                  values.articleDetails = ""
-                  values.articleTitle = ""
-                  values.articleGenre = ""
+                  await addNewArticleMutation.mutateAsync(values)
                   setActive("Articles")
                   
                 }catch(error){
@@ -43,7 +84,6 @@ const AddArticle = props => {
         }
     })
 
-    // console.log("form values", formik.values)
     return (
     <div style={{maxWidth: "708.667px"}}>
         <Box sx={{textAlign: "center", }}>
@@ -114,17 +154,8 @@ const AddArticle = props => {
                 > 
                 Add Article
                 </Button>
-            </Box>
-            {
-            addRequestStatus === "pending" ? <Box sx={{marginTop: 4}}>
-              
-              <LinearProgress/>
-              
-              </Box> : null
-          }
-            
+            </Box>            
         </Box>
-
     </div>
     )
     ;

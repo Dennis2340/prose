@@ -1,6 +1,5 @@
-import { createSlice, nanoid, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-import sub from "date-fns/sub";
 import api from "../../api";
 const USER_URL = "http://localhost:3600/user"
 
@@ -13,7 +12,6 @@ const initialState = {
 
 export const fetchUser = createAsyncThunk("user/fetchUser", async()=> {
  const userData =  await axios.get(USER_URL + "/getUserInfo")
- console.log(userData.data)
  return userData.data
 })
 
@@ -25,7 +23,7 @@ export const addNewUser = createAsyncThunk("user/addNewUser", async(initialUser)
       'Accept': 'application/json, text/plain, video/*'
     }}
      )
-     console.log(response.data)
+     
      return response.data   
    } catch (error) {
       return error.message
@@ -36,10 +34,10 @@ export const addNewUser = createAsyncThunk("user/addNewUser", async(initialUser)
  export const Login = createAsyncThunk("user/loginUser", async(initialUser) => {
     try {
      const response = await api.post(USER_URL + "/login", initialUser)
-     console.log(response.data)
+     
      const token = response.data.token;
      localStorage.setItem('token', token);
-     return response.data   
+     return response.data.user   
    } catch (error) {
       return error.message
     }
@@ -48,10 +46,10 @@ export const addNewUser = createAsyncThunk("user/addNewUser", async(initialUser)
 
  export const updateUser = createAsyncThunk("user/updateUser", async(initialUser) => {
     const { _id } = initialUser
-    console.log(_id)
+    
   try {
      const response = await api.put(USER_URL + `/updateUser/${_id}`, initialUser)
-     return response.data
+     return response.data.payload
   } catch (error) {
       return error.message
   }
@@ -89,7 +87,7 @@ const aboutSlice = createSlice({
            })
            .addCase(fetchUser.fulfilled, (state,action) => {
             state.status = "succeeded"
-            let min = 1
+           
              const loadedUser = action.payload.users?.map(user => {
                 // poem.createdAt = sub(new Date(), { minutes: min++})
                  return user
@@ -104,7 +102,7 @@ const aboutSlice = createSlice({
           })
           .addCase(addNewUser.fulfilled, (state,action) => {
             //action.payload.createdAt = new Date().toISOString()
-            console.log(action.payload)
+            
             state.user.push(action.payload)
           })
 
@@ -113,7 +111,7 @@ const aboutSlice = createSlice({
           
             if (!updatedUser?._id) {
               console.log("Update could not happen, check for errors");
-              console.log(updatedUser);
+              
               return;
             }
           
@@ -128,7 +126,7 @@ const aboutSlice = createSlice({
           
             if (!deletedUser?._id) {
               console.log("Delete could not complete");
-              console.log(deletedUser);
+              
               return;
             }
           
@@ -138,7 +136,7 @@ const aboutSlice = createSlice({
 })
 
 export const getUserInfo = (state) => {
-    console.log(state.user)
+  
     return state.user.user
 }
 

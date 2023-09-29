@@ -1,28 +1,104 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { TextField, Button,Box, Typography } from '@mui/material';
-import DenseAppBar from '../../Components/BasicBar';
 import { useFormik } from 'formik';
-import { selectMotMsgById,updateMotMsg, deleteMotMsg } from './motmsgSlice';
-import { useEffect } from 'react';
-import { useSelector, useDispatch } from "react-redux"
-import { useState } from 'react'
-import { useParams } from 'react-router-dom';
-import { useNavigate  } from 'react-router-dom';
+import {updateMotMsgQuery, deleteMotMsgQuery, fetchMotMsgQuery } from './motmsgSlice';
+import { useContext } from 'react'
+import { MyAdminContext } from '../../pages/Admin';
+import { useMutation, useQueryClient, useQuery } from 'react-query';
+import Swal from "sweetalert2";
 
-const EditMotMsg = props => {
+const EditMotMsg = ({id}) => {
 
-    const { id } = useParams()
-    const navigate = useNavigate()
-    
-    const motmsg = useSelector(state => selectMotMsgById(state,id))
+    const { data: motmsgs,  } = useQuery('motmsgs', fetchMotMsgQuery, {
+        initialData: {
+          motmsgs: [],
+        },
+      });
+      const motmsg =  motmsgs.motMessages.find((motmsg) => motmsg._id === id);
+      const queryClient = useQueryClient()
+      const Toast = Swal.mixin({
+        toast: true,
+        position: 'center',
+        timer: 3000,
+        timerProgressBar: true,
+        showConfirmButton: false,
         
-    const dispatch = useDispatch()
-    const [addRequestStatus, setAddRequestStatus] = useState("idle")
+      })
+
+    const [active, setActive] = useContext(MyAdminContext)
+   
+    const updateMotMsgMutation = useMutation(
+        async (updatedMotMsg) => {
+          try {
+            // Use your existing function to update the poem
+            const response = await updateMotMsgQuery(updatedMotMsg);
     
-    const handleDelete = async() =>{
-       await dispatch(deleteMotMsg(motmsg))
-       navigate("/motmsg")
+            // Assuming your API returns the updated poem
+            return response.data;
+          } catch (error) {
+            throw new Error(error.message);
+          }
+        },
+        {
+          onMutate: (newData) => {
+            // Optimistically update the poem in the cache
+            queryClient.setQueryData(['motmsgs', id], (oldData) => {
+              return {
+                ...oldData,
+                ...newData,
+              };
+            });
+          },
+          onError: (error) => {
+            Toast.fire({
+              icon: 'error',
+              title: 'Error',
+              text: error.message,
+            });
+            console.error('Error updating motMessage:', error);
+          },
+          onSuccess: (data) => {
+            Toast.fire({
+              icon: 'success',
+              title: 'MotMessage Updated Successfully',
+              text: "motmessage updated successfully",
+            });
+          },
+          onSettled: () => {
+            // Refetch the poems after the mutation is settled
+            queryClient.invalidateQueries('motmessages');
+          },
+        }
+      );
+
+      const deleteMotMsgMutation = useMutation(
+        () => deleteMotMsgQuery(id),
+        {
+          onError: (error) => {
+            Toast.fire({
+              icon: 'error',
+              title: 'Error',
+              text: error.message,
+            });
+            console.error('Error deleting motmsg:', error);
+          },
+          onSuccess: () => {
+            Toast.fire({
+              icon: 'success',
+              title: 'Motivational msg deleted Successfully',
+            });
+          },
+          onSettled: () => {
+            // Redirect or perform any other actions after deletion
+            setActive('Motivational_Msg');
+          },
+        }
+      );
+    
+   
+    const handleDelete = async(id) =>{
+       await deleteMotMsgMutation.mutateAsync(id)
+       setActive("Motivational_Msg")
     }
 
     const formik = useFormik({
@@ -36,35 +112,28 @@ const EditMotMsg = props => {
         onSubmit: async(values) => {
             if(values){
             try{
-              setAddRequestStatus("pending")
-              await dispatch(updateMotMsg(values))  
-              navigate("/motmsg")
-              window.location.reload()
+              await updateMotMsgMutation.mutateAsync(values);
+              setActive("SingleMotMsg")
               
             }catch(error){
                 console.log(error.message)
-            }
-        
-            
+            }           
         }
     }
     })
 
     return (
 
-    <div>
-         <Box sx={{textAlign: "center", marginTop: 5}}>
+    <Box sx={{maxWidth: "708.667px",marginLeft: {xs: 0, lg: -5}}}>
+         <Box sx={{textAlign: "center", marginLeft: {xs: 0, lg: -5}}}>
             <Typography variant="h4" component="h3">
                 Update Motivational Message
             </Typography>
         </Box>
         <Box
         sx={{
-            width: {xs: "75%", sm: "50%"},
             display: {xs:"block", sm: "block"},
             marginTop: 5,
-            marginLeft: "auto",
-            marginRight: "auto"
           }}
         >
            <div>
@@ -128,14 +197,14 @@ const EditMotMsg = props => {
                  variant="contained"
                  color='secondary'
                  fullWidth={true}
-                 onClick={handleDelete}
+                 onClick={() => handleDelete(formik.values._id)}
                 > 
                 Delete Motivational Msg
                 </Button>
             </Box>
             
         </Box>
-    </div>
+    </Box>
     );
 };
 

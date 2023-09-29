@@ -8,7 +8,8 @@ import Typography from '@mui/material/Typography';
 import { Link } from 'react-router-dom';
 import { styled } from '@mui/system';
 import { PlayArrow } from '@mui/icons-material';
-import { MyAdminContext } from '../pages/Admin';
+import { MyContext } from '../../Layout';
+
 
 const StyledCard = styled(Card)(
   ({ theme }) => ({
@@ -39,7 +40,7 @@ const StyledButton = styled(Button)(
 
 const VideoComp = ({video, videoId}) => {
 
-  const [active, setActive] = useContext(MyAdminContext)
+  const [active, setActive] = useContext(MyContext)
   
   if (!video || !video.videoUrl) {
     return null; // Return early or show an error message if the video or videoUrl is undefined
@@ -51,7 +52,7 @@ const VideoComp = ({video, videoId}) => {
  
 
   const handleClick = (id) => {
-    setActive("SingleStory")
+    setActive("SingleVideo")
     videoId(id)
     window.scrollTo({
       top: 0,
@@ -60,7 +61,6 @@ const VideoComp = ({video, videoId}) => {
   }
   console.log(mainUrl)
     return (
-
     <div>
       <StyledCard sx={{ marginTop: 4, }}>
       <StyledCardContent>

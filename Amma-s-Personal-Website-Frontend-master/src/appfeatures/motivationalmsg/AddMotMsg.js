@@ -1,19 +1,69 @@
 import React, { useContext } from 'react';
-import PropTypes from 'prop-types';
 import { TextField, Button,Box, Typography } from '@mui/material';
-import DenseAppBar from '../../Components/BasicBar';
 import { useFormik } from 'formik';
-import { addNewMotMsg, fetchMotMsg } from './motmsgSlice';
-import { useEffect } from 'react';
-import { useSelector, useDispatch } from "react-redux"
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import LinearProgress from '@mui/material/LinearProgress';
+import { addNewMotMsgQuery, fetchMotMsgQuery } from './motmsgSlice';
 import { MyAdminContext } from '../../pages/Admin';
+import { useMutation, useQueryClient, useQuery } from 'react-query';
+import Swal from "sweetalert2";
+
 const AddMotMsg = props => {
 
-    const dispatch = useDispatch()
-    const [addRequestStatus, setAddRequestStatus] = useState("idle")
+    const { data: motmsgs, isLoading, isError, error } = useQuery('motmsgs', fetchMotMsgQuery, {
+        initialData: {
+          motmsgs: [],
+        },
+      });
+
+    const Toast = Swal.mixin({
+        toast: true,
+        position: 'center',
+        timer: 3000,
+        timerProgressBar: true,
+        showConfirmButton: false,
+        
+      })
+
+    const queryClient = useQueryClient()
+    const addNewMotMsgMutation = useMutation(addNewMotMsgQuery, {
+        onMutate: async (newMotMsgData) => {
+          // Optimistically add the new poem to the cache
+          queryClient.setQueryData('motmsgs', (oldData) => {
+            return {
+              ...oldData,
+              motmsgs: [
+                ...oldData.motMessages,
+                {
+                  _id: 'temp-id', // Generate a temporary ID for the optimistic update
+                  ...newMotMsgData,
+                },
+              ],
+            };
+          });
+        },
+        onError: (error) => {
+            Toast.fire({
+                icon: 'error',
+                title: 'Error',
+                text: error.message,
+            })
+          console.error('Error adding new Motivaional message:', error);
+        },
+        onSuccess: (data, variables, context) => {
+            // Assuming your backend returns a success status code (e.g., 200)
+              // Display a success toast
+              Toast.fire({
+                icon: 'success',
+                title: 'Added Successfully',
+                text: data.message,
+              });
+            
+          },
+        onSettled: () => {
+          // Refetch the poems after the mutation is settled
+          queryClient.invalidateQueries('motmsgs');
+        },
+      });
+      
     const [active, setActive] = useContext(MyAdminContext)
     const formik = useFormik({
         initialValues: {
@@ -25,13 +75,8 @@ const AddMotMsg = props => {
         onSubmit: async(values) => {
             if(values){
                 try{
-                  setAddRequestStatus("pending")
-                 await dispatch(addNewMotMsg(values))  
-                 await dispatch(fetchMotMsg())
-                  values.motMessageAuthor = ""
-                  values.motMessageDetails = ""
-                  values.motMessageTitle = ""
-                  values.motMessageGenre = ""
+                    await addNewMotMsgMutation.mutateAsync(values); // Use the mutation function
+                    formik.resetForm(); // Reset the form
                   setActive("Motivational_Msg")
                   
                 }catch(error){
@@ -89,7 +134,7 @@ const AddMotMsg = props => {
                  rows={4}
                  multiline
                  name='motMessageDetails'
-                 value={formik.values.articleDetails}
+                 value={formik.values.motMessageDetails}
                 onChange={formik.handleChange}
                 />
             </div>
@@ -115,14 +160,6 @@ const AddMotMsg = props => {
                 Add MotMsg
                 </Button>
             </Box>
-            {
-            addRequestStatus === "pending" ? <Box sx={{marginTop: 4}}>
-              
-              <LinearProgress/>
-              
-              </Box> : null
-          }
-
         </Box>
 
     </div>

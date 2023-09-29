@@ -1,89 +1,131 @@
-import React, { useEffect } from 'react';
-import PropTypes from 'prop-types';
-import { Box, Typography, Grid } from '@mui/material';
-import { Outlet } from 'react-router-dom';
-import { useSelector, useDispatch } from "react-redux"
-import { fetchPoems, getPoemError, getPoemStatus,getAllPoems } from '../../appfeatures/poems/poemSlice';
-import LinearIndeterminate from '../../Components/LoadingPage';
+// Update your Poem component
+import React, { useState } from 'react';
+import { Box, Typography, Grid, InputBase, IconButton, Button, Stack, Pagination } from '@mui/material';
 import PoemCard from '../../Components/GeneralPageCompnent/Card';
+import { useQuery,useQueryClient, useInfiniteQuery } from 'react-query';
+import { Search, Clear } from '@mui/icons-material';
+import SkeletonCard from '../../Components/SkeletonCard';
+import  { fetchPoemsQuery } from '../../appfeatures/poems/poemSlice';
 
-const Poem = props => {
+const Poem = ({ poemId }) => {
+  const queryClient = useQueryClient();
 
-  const dispatch = useDispatch()
+  const { data: poems, isLoading, isError, error, isSuccess } = useQuery('poems', fetchPoemsQuery); // Replace 'fetchStories' with your fetch function
 
-  const poemList = useSelector(getAllPoems)
-  console.log(poemList)
-  const error = useSelector(getPoemError)
-  const poemStatus = useSelector(getPoemStatus)
+  const [searchTerm, setSearchTerm] = useState('');
 
-   useEffect(() => {
-    if(poemStatus === "idle"){
-      console.log("Fetching poems...");
-      dispatch(fetchPoems())
-      
-    }else if (poemStatus === "succeeded") {
-      console.log("Poems fetched successfully!");
-      console.log("Poem list:", poemList);
-    }
-   }, [poemStatus,dispatch,poemList])
-
-   useEffect(() => {
-    if (poemStatus === "succeeded") {
-      const orderedPoems = poemList.slice().sort((a, b) => {
-        return new Date(b.createdAt) - new Date(a.createdAt);
-      })
-      console.log(orderedPoems)
-    }
-  }, [poemList, poemStatus])
   
-   let content;
-   if(poemStatus === "loading"){
-    return (
-      <Box sx={{ marginTop: 25,}}>
-        <LinearIndeterminate/>
-      </Box>
-      
-    )
-   }
-   else if(poemStatus === "succeeded"){
-    const orderedPoem = poemList.slice().sort((a, b) => {
-      return new Date(b.createdAt) - new Date(a.createdAt);
-    });
-    
-   content = orderedPoem.map((poem, index) => (
-    <Grid item key={`${poem._id}-${index}`} xs={12} sm={6} md={6}>
-      <PoemCard poem={poem} />
-    </Grid>
-    ))
+  const filteredPoems = isSuccess 
+  ?      poems.poems.filter(
+          (poem) =>
+            poem.poemTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            poem.poemGenre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            poem.poemAuthor.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            poem.poemDetails.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+    : [];
+
+  let content;
+  if (isLoading) {
+    content = Array.from({ length: 8 }).map((_, index) => (
+      <Grid item key={index} xs={12} sm={6} md={6}>
+        <SkeletonCard />
+      </Grid>
+    ));
+  } else if (isSuccess) {
+    content =
+      filteredPoems.length > 0 ? (
+        filteredPoems.map((poem, index) => (
+          <Grid item key={`${poem._id}-${index}`} xs={12} sm={6} md={6}>
+            <PoemCard poemId={poemId} poem={poem} />
+          </Grid>
+        ))
+      ) : (
+        <Typography sx={{ marginTop: 10 }} variant="h3" color="textSecondary">
+          No poems found.
+        </Typography>
+      );
   }
-   
-   else if (poemStatus === "failed"){
-    content = <p>error maybe internet issue</p>
-   }
-    return (
+  else if(isError){
+    content = <Typography variant='h5'>{error}</Typography>
+  }
+
   
-    <Box sx={{
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'center',
-      alignItems: 'center',
-      marginLeft: { lg: -20 },
-    }}>
-        <Box>
-          <Box sx={{
-          textAlign: 'center'
-        }}>
-          <Typography  variant='h4' component="h1">
+  queryClient.setQueryData('poemCache', poems);
+
+  
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        width: 'auto',
+        alignItems: 'center',
+        marginLeft: { lg: -20 },
+      }}
+    >
+      <Box sx={{ width: 'auto' }}>
+        <Box sx={{ textAlign: 'center' }}>
+          <Typography variant="h4" component="h1">
             POEMS
           </Typography>
-          </Box>
-          <Grid container spacing={3}>
-            {content}
-          </Grid>
         </Box>
-
+        {/* Add search field */}
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            marginTop: 2,
+            marginBottom: 2,
+            maxWidth: { lg: '70%' },
+            marginLeft: { lg: 15 },
+          }}
+        >
+          <InputBase
+            placeholder="Search for poems..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            fullWidth
+            sx={{
+              borderRadius: 1,
+              backgroundColor: (theme) => theme.palette.common.main,
+              pl: 2,
+              pr: 1,
+              boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.1)',
+            }}
+          />
+          {searchTerm ? (
+            <IconButton
+              onClick={() => setSearchTerm('')}
+              sx={{ padding: 0, marginLeft: -6 }} // Add some styling to the clear button
+            >
+              <Clear />
+            </IconButton>
+          ) : (
+            <Search sx={{ padding: 0, marginLeft: -6 }} />
+          )}
+        </Box>
+        <Grid container spacing={3}>
+          {content}
+        </Grid>
+        {/* <Box sx={{ textAlign: 'center', zIndex: 1,marginTop: 7,}}>
+            <Stack spacing={2}>
+              <Pagination
+                count={data.pages.totalPages} // Assuming totalPages is available in your data structure
+                page={data.pages.page}
+                onChange={handlePageChange}
+                color="primary"
+              />
+              {isFetchingNextPage && <Typography variant="body2">Loading more...</Typography>}
+            </Stack> 
+        </Box>
+          */}
+       
+      </Box>
     </Box>
-    );
+  );
 };
 
 Poem.propTypes = {};

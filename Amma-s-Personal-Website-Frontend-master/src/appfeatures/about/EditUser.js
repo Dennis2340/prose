@@ -1,14 +1,12 @@
 import React, {useState} from 'react';
-import PropTypes from 'prop-types';
 import { Box, Typography } from '@mui/material';
 import DenseAppBar from '../../Components/BasicBar';
 import { TextField } from '@mui/material';
 import {Button} from '@mui/material';
-import { Password } from '@mui/icons-material';
 import { updateUser } from './aboutSlice';
 import { useFormik } from 'formik';
 import { useSelector, useDispatch } from "react-redux"
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate,} from 'react-router-dom';
 import LinearProgress from '@mui/material/LinearProgress';
 import { getUserInfo,deleteUser } from './aboutSlice';
 const EditUser = props => {
@@ -25,7 +23,7 @@ const EditUser = props => {
     const url = user[0]?.pictureUrl
     const lastDashedIndex = url?.lastIndexOf("-")
     const mainUrl = url?.substring(lastDashedIndex + 1)
-    console.log(mainUrl)
+    
 
     const formik = useFormik({
         initialValues: {

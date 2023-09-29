@@ -1,79 +1,96 @@
-import React,{useEffect, useState} from 'react';
+import React from 'react';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
-import useMediaQuery from '@mui/material/useMediaQuery';
-import { useTheme } from '@mui/material/styles';
-const bull = (
-  <Box
-    component="span"
-    sx={{ display: 'inline-block', mx: '2px', transform: 'scale(0.8)' }}
-  >
-    •
-  </Box>
+import { styled } from '@mui/system';
+import { ListItemText, List, Divider, ListItem } from '@mui/material';
+
+const StyledCard = styled(Card)(
+  ({ theme }) => ({
+    width: '100%',
+    height: '100%',
+    maxWidth: {xs: 0, lg: "80%"},
+    minWidth: 350,
+    textAlign: 'center',
+    margin: 'auto',
+    boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
+    transition: '0.3s',
+    '&:hover': {
+      boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.2)',
+    },
+  })
 );
 
+const StyledCardContent = styled(CardContent)(
+  ({ theme }) => ({
+    padding: theme.spacing(2),
+  })
+);
+
+const dummyUser = {
+  address: "123 Main Street",
+  contactNumber: "1234567890",
+  dateOfBirth: "31st August, 2023",
+  email: "kamaradennis36@gmail.com",
+  specialization: "bone specialist",
+  firstName: "Dennis",
+  gender: "male",
+  lastName: "Kamara",
+  profileImage: null || "https://www.bing.com/th?id=OIP.rq0bLboVfwhtwS9EnvZ0CAHaJl&w=76&h=100&c=8&rs=1&qlt=90&o=6&dpr=1.5&pid=3.1&rm=2",
+  role: "patient",
+};
+
+
 export default function BasicCard({user}) {
-
-
-  console.log(user)
- 
    const url = user?.pictureUrl
-   console.log(url)
    const filename = url?.split("/");
-   console.log(filename)
    const mainUrl = filename[filename.length - 1];
-   console.log(mainUrl)
 
-   const theme = useTheme();
-  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
-
-   const paddingTopValue = isSmallScreen ? '150%' : '56.46%';
- 
   return (
-    <Card sx={{ minWidth: 275, marginBottom: 5, width: {xs : "50%", sm: "100%"} }}>
-      <CardContent>
+    <Box sx={{ width: "100%", textAlign: "center"}}>
+    <StyledCard>
+      <StyledCardContent>
         <Typography  variant='h5' color="text.secondary" >
-           {user.userName}
+           {user.userName || dummyUser.firstName}
         </Typography>
         <Box sx={{marginTop: 3}}>
         <Typography sx={{marginTop: 2}} variant="body2">
-          {user.userDescription}
+          {user?.userOccupation || dummyUser.specialization || "not stated"}
         </Typography>
         </Box>
-        <Box sx={{
-          marginTop: 4, 
-          marginBottom: 4,
-          position: 'relative',
-          paddingTop: paddingTopValue,
-          width: '100%',
-          height: 'auto',
-          overflow: 'hidden',
-        }}
-        >
-        <img 
-        src={`http://localhost:3600/user/userImage/${mainUrl}`} 
-        alt='The owner is smiling'
-        style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }}
-        />
+        <Divider sx={{ my: 2 }} />
+        <Box sx={{width: "100%",textAlign: "center", marginLeft: 5,display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center"}}>
+          <List>
+             <ListItem>
+                 <ListItemText 
+                  primary="Contact"
+                  secondary={user?.userPhoneNumber || dummyUser.contactNumber || "not stated"}
+                 />
+             </ListItem>
+             <ListItem>
+                 <ListItemText 
+                  primary="Email"
+                  secondary={user?.userEmail || dummyUser.email || "not stated"}
+                 />
+             </ListItem>
+             <ListItem>
+                 <ListItemText 
+                  primary="Date of Birth"
+                  secondary={user?.userDateOfBirth || dummyUser.dateOfBirth || "not stated"}
+                 />
+             </ListItem>
+             <ListItem>
+                 <ListItemText 
+                  primary="Gender"
+                  secondary={user?.userGender || dummyUser.gender ||  "not stated"}
+                 />
+             </ListItem>
+          </List>
         </Box>
-
-
-        <Box>
-        <Typography variant='h5' component="h2">
-          Ways to contact me
-        </Typography>
-        </Box>
-        <Box>
-        <Typography sx={{ marginTop: 1}} variant="body2">
-          {
-            `please contact me for any additional info by phone +232${user.userPhoneNumber?.slice(1)} or by email ${user.userEmail}`
-          }
-        </Typography>
-        </Box>
-      </CardContent>
+      </StyledCardContent>
       
-    </Card>
+    </StyledCard>
+    </Box>
   );
 }

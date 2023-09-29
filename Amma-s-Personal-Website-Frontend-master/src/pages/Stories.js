@@ -1,63 +1,42 @@
 import React, { useEffect } from 'react';
-import PropTypes from 'prop-types';
-import { Box, Typography, Grid, Link } from '@mui/material';
-import BasicCard from '../Components/StoryCard';
-import { Outlet } from 'react-router-dom';
+import { Box, Typography, Grid,} from '@mui/material';
 import { useSelector, useDispatch } from "react-redux"
-import { fetchStories, getAllStories, getStoryError, getStoryStatus } from '../appfeatures/stories/storySlice';
+import { fetchStoryQuery,getAllStories, getStoryStatus } from '../appfeatures/stories/storySlice';
 import LinearIndeterminate from '../Components/LoadingPage';
 import StoryCard from '../Components/StoryCard';
-const Stories = props => {
+import { useQuery, useQueryClient } from 'react-query';
 
-  const dispatch = useDispatch()
+const Stories = ({storyId}) => {
 
-  const storyList = useSelector(getAllStories)
-  console.log(storyList)
-  const error = useSelector(getStoryError)
- 
-  const storyStatus = useSelector(getStoryStatus)
-  
-   useEffect(() => {
-    if(storyStatus === "idle"){
-      dispatch(fetchStories())
-      
-    }
-   }, [storyStatus, dispatch])
+  const queryClient = useQueryClient()
+  const { data: stories, isLoading, isError, error, isSuccess } = useQuery('stories', fetchStoryQuery); // Replace 'fetchStories' with your fetch function
 
-   useEffect(() => {
-    if (storyStatus === "succeeded") {
-      const orderedStories = storyList.slice().sort((a, b) => {
-        return new Date(b.createdAt) - new Date(a.createdAt);
-      })
-      console.log(orderedStories)
-    }
-  }, [storyList, storyStatus])
-  
    let content;
-   if(storyStatus === "loading"){
+   if(isLoading){
     return (
       <Box sx={{ marginTop: 25,}}>
       <LinearIndeterminate/>
     </Box>
     )
    }
-   else if(storyStatus === "succeeded"){
+   else if(isSuccess){
     
-   const orderedStory = storyList.slice().sort((a,b) => {
+   const orderedStory = stories.story.slice().sort((a,b) => {
     return new Date(b.createdAt) - new Date(a.createdAt);
   })
-  console.log(orderedStory)
-  
+   
   content = orderedStory.map((story, index) => (
     <Grid item key={`${story._id}-${index}`} xs={12} sm={6} md={6}>
-      <StoryCard story={story} />
+      <StoryCard story={story} storyId={storyId}/>
     </Grid>
     ))
     
    }
-   else if (storyStatus === "failed"){
-    content = <p>error maybe internet issue</p>
+   else if (isError) {
+    content = <p>{error}</p>
    }
+
+   queryClient.setQueryData("stories", stories)
     return (
   <>
     <Box sx={{

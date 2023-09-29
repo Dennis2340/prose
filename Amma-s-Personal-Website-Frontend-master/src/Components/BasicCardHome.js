@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Card,Box, CardContent, Typography, CardMedia, Button } from '@mui/material';
-import { Link } from 'react-router-dom';
 import { styled } from '@mui/system';
 
 const StyledCard = styled(Card)(
@@ -30,10 +29,10 @@ const StyledButton = styled(Button)(
   })
 );
 
-const BasicCard = ({ title, description, imageUrl, link, handleClick }) => {
+const BasicCard = ({ title, description, imageUrl, handleClick }) => {
   return (
     <StyledCard sx={{ height: '100%' }}>
-      <CardMedia component="img" image={imageUrl} alt={title} height="140" />
+       {imageUrl && (<CardMedia component="img" image={imageUrl} alt={title} height="140" />)}
       <StyledCardContent>
         <Typography variant="h5" component="div">
           {title}
@@ -43,7 +42,7 @@ const BasicCard = ({ title, description, imageUrl, link, handleClick }) => {
         </Typography>
       </StyledCardContent>
       <Box sx={{marginLeft: {xs: 9}, marginBottom: {xs: 2}}}>
-      <StyledButton size='small' component={Link} onClick={handleClick}>
+      <StyledButton size='small' onClick={handleClick}>
         Learn More
       </StyledButton>
       </Box>

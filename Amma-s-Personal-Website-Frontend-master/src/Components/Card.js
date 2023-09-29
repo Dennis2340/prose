@@ -9,7 +9,7 @@ const StyledCard = styled(Card)(
     width: '100%',
     height: '100%',
     textAlign: 'center',
-    maxWidth: 500,
+    minWidth: "auto",
     margin: 'auto',
     boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
     transition: '0.3s',
@@ -38,10 +38,12 @@ const PoemCard = ({poem, poemId}) => {
   const handleClick = (id) => {
     setActive("SinglePoem")
     poemId(id)
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    })
   }
 
-
-  
   return (
     <StyledCard sx={{ marginTop: 4,}}>
       <StyledCardContent>

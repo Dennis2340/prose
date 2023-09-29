@@ -1,62 +1,40 @@
-import React, { useEffect } from 'react';
-import PropTypes from 'prop-types';
-import { Box, Typography, Grid, Link } from '@mui/material';
-import BasicCard from '../Components/ArticleCard';
-import { Outlet } from 'react-router-dom';
-import { useSelector, useDispatch } from "react-redux"
-import { fetchArticles, getAllArticles, getArticleError, getArticleStatus } from '../appfeatures/articles/articleSlice';
+import React from 'react';
+import { Box, Typography, Grid } from '@mui/material';
+import { fetchArticleQuery,  } from '../appfeatures/articles/articleSlice';
 import LinearIndeterminate from '../Components/LoadingPage';
 import ArticleCard from '../Components/ArticleCard';
-const Articles = props => {
+import { useQuery, useQueryClient } from 'react-query';
 
+const Articles = ({articleId}) => {
 
-  const dispatch = useDispatch()
+  const queryClient = useQueryClient()
+  const { data: articles, isLoading, isError, error, isSuccess } = useQuery('articles', fetchArticleQuery); // Replace 'fetchStories' with your fetch function
 
-  const articleList = useSelector(getAllArticles)
-  console.log(articleList)
-  const error = useSelector(getArticleError)
- 
-  const articleStatus = useSelector(getArticleStatus)
-  
-  useEffect(() => {
-    if(articleStatus === "idle"){
-      dispatch(fetchArticles())
-      
-    }
-   }, [articleStatus, dispatch])
-
-   useEffect(() => {
-    if (articleStatus === "succeeded") {
-      const orderedArticle = articleList.slice().sort((a, b) => {
-        return new Date(b.createdAt) - new Date(a.createdAt);
-      })
-      console.log(orderedArticle)
-    }
-  }, [articleList, articleStatus])
-  
    let content;
-   if(articleStatus === "loading"){
+   if(isLoading) {
     return (
       <Box sx={{ marginTop: 25,}}>
         <LinearIndeterminate/>
       </Box>
     )
    }
-   else if(articleStatus === "succeeded"){
-    const orderedArticle = articleList.slice().sort((a,b) => {
+   else if(isSuccess){
+    const orderedArticle = articles.article.slice().sort((a,b) => {
       return new Date(b.createdAt) - new Date(a.createdAt);
    })
-   console.log(orderedArticle)
+  
   
    content = orderedArticle.map((article, index) =>(
     <Grid item key={`${article._id}-${index}`} xs={12} sm={6} md={6}>
-      <ArticleCard article={article} />
+      <ArticleCard article={article} articleId={articleId}/>
     </Grid>
     ))
     }
-    else if (articleStatus === "failed"){
-     content = <p>error maybe internet issue</p>
+    else if (isError){
+     content = <p>{error}</p>
     }
+
+    queryClient.setQueryData("articles", articles)
     return (
     <Box sx={{
       display: 'flex',

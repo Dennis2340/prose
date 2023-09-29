@@ -1,14 +1,15 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Card, CardContent, Typography, Button } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { styled } from '@mui/system';
+import { MyAdminContext } from '../pages/Admin';
 
 const StyledCard = styled(Card)(
   ({ theme }) => ({
     width: '100%',
     height: '100%',
     textAlign: 'center',
-    maxWidth: 500,
+    minWidth: "auto",
     margin: 'auto',
     boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
     transition: '0.3s',
@@ -30,7 +31,20 @@ const StyledButton = styled(Button)(
   })
 );
 
-const ArticleCard = ({article}) => {
+const ArticleCard = ({article, articleId}) => {
+
+  const [active, setActive] = useContext(MyAdminContext)
+
+  const handleClick = (id) => {
+    setActive("SingleArticle")
+    articleId(id)
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    })
+  }
+
+
   return (
     <StyledCard sx={{ marginTop: 4,}}>
       <StyledCardContent>
@@ -47,8 +61,7 @@ const ArticleCard = ({article}) => {
           {article.articleAuthor ? `by ${article.articleAuthor}` : 'Unknown Author'}
         </Typography>
         <StyledButton
-          component={Link}
-          to={`/singlearticle/${article._id}`}
+          onClick={()=> handleClick(article._id)}
           variant="outlined"
           color="primary"
         >

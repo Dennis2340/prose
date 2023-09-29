@@ -1,7 +1,5 @@
-import { ApiTwoTone } from "@mui/icons-material";
-import { createSlice, nanoid, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-import sub from "date-fns/sub";
 import api from "../../api";
 const VIDEO_URL = "http://localhost:3600/video"
 
@@ -13,9 +11,13 @@ const initialState = {
 
 export const fetchVideos = createAsyncThunk("video/fetchVideos", async() => {
   const videoData = await axios.get(VIDEO_URL + "/getAllVideos")
-  console.log(videoData.data)
   return videoData.data
 })
+
+export const fetchVideosQuery =  async() => {
+  const videoData = await axios.get(VIDEO_URL + "/getAllVideos")
+  return videoData.data
+}
 
 export const addNewVideo = createAsyncThunk("video/addNewVideo", async(initialVideo) => {
     try {
@@ -25,7 +27,7 @@ export const addNewVideo = createAsyncThunk("video/addNewVideo", async(initialVi
       'Accept': 'application/json, text/plain, video/*'
     }}
      )
-     console.log(response.data)
+     
      return response.data   
    } catch (error) {
       return error.message
@@ -34,8 +36,8 @@ export const addNewVideo = createAsyncThunk("video/addNewVideo", async(initialVi
  })
 
  export const deleteVideo = createAsyncThunk("video/deleteVideo", async(initialVideo) => {
-    const { _id } = initialVideo
     try {
+      const { _id } = initialVideo
      const response = await api.delete(VIDEO_URL + `/deleteSingleVideo/${_id}`)
      if(response?.status === 200) return initialVideo
      return `${response?.status} : ${response?.statusText}`
@@ -82,8 +84,7 @@ export const addNewVideo = createAsyncThunk("video/addNewVideo", async(initialVi
             state.error = action.error.payload
           })
           .addCase(addNewVideo.fulfilled, (state,action) => {
-            //action.payload.createdAt = new Date().toISOString()
-            console.log(action.payload)
+           
             state.videos.push(action.payload)
           })
           .addCase(deleteVideo.fulfilled, (state, action) => {
@@ -91,7 +92,7 @@ export const addNewVideo = createAsyncThunk("video/addNewVideo", async(initialVi
           
             if (!deletedVideo?._id) {
               console.log("Delete could not complete");
-              console.log(deletedVideo);
+              
               return;
             }
           
@@ -103,7 +104,6 @@ export const addNewVideo = createAsyncThunk("video/addNewVideo", async(initialVi
 
 
 export const getAllVideos = (state) => {
-    console.log(state.videos)
     return state.videos.videos
 }
 export const getVideoStatus = (state) => state.videos.status

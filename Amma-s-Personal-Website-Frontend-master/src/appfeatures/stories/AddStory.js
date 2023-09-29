@@ -1,23 +1,66 @@
 import React, { useContext } from 'react';
-import PropTypes from 'prop-types';
 import { TextField, Button,Box, Typography } from '@mui/material';
-import DenseAppBar from '../../Components/BasicBar';
 import { useFormik } from 'formik';
-import { useEffect } from 'react';
-import { useSelector, useDispatch } from "react-redux"
-import { useState } from 'react';
-import { addNewStory, fetchStories } from './storySlice';
-import { useNavigate } from 'react-router-dom';
-import LinearProgress from '@mui/material/LinearProgress';
+import { addNewStoryQuery } from './storySlice';
 import { MyAdminContext } from '../../pages/Admin';
+import { useMutation, useQueryClient, } from 'react-query';
+import Swal from "sweetalert2";
+
 const AddStory = props => {
 
-    const navigate = useNavigate()
+
+    const Toast = Swal.mixin({
+        toast: true,
+        position: 'center',
+        timer: 3000,
+        timerProgressBar: true,
+        showConfirmButton: false,
+        
+      })
+
+    const queryClient = useQueryClient()
+    const addNewStoryMutation = useMutation(addNewStoryQuery, {
+        onMutate: async (newStoryData) => {
+          // Optimistically add the new poem to the cache
+          queryClient.setQueryData('stories', (oldData) => {
+            return {
+              ...oldData,
+              story: [
+                ...oldData.story,
+                {
+                  _id: 'temp-id', // Generate a temporary ID for the optimistic update
+                  ...newStoryData,
+                },
+              ],
+            };
+          });
+        },
+        onError: (error) => {
+            Toast.fire({
+                icon: 'error',
+                title: 'Error',
+                text: error.message,
+            })
+          console.error('Error adding new Story:', error);
+        },
+        onSuccess: (data, variables, context) => {
+            // Assuming your backend returns a success status code (e.g., 200)
+              // Display a success toast
+              Toast.fire({
+                icon: 'success',
+                title: 'Story Added Successfully',
+                text: data.message,
+              });
+            
+          },
+        onSettled: () => {
+          // Refetch the poems after the mutation is settled
+          queryClient.invalidateQueries('poems');
+        },
+      });
     
     const [active, setActive] = useContext(MyAdminContext)
-    const dispatch = useDispatch()
-    const [addRequestStatus, setAddRequestStatus] = useState("idle")
-
+    
     const formik = useFormik({
         initialValues: {
         storyTitle: "",
@@ -28,14 +71,9 @@ const AddStory = props => {
         onSubmit: async(values) => {
             if(values){
             try{
-               
-              setAddRequestStatus("pending")
-              await dispatch(addNewStory(values))  
-              await dispatch(fetchStories())
-              values.storyAuthor = ""
-              values.storyDetailed = ""
-               values.storyTitle = ""
-               values.storyGenre = ""
+                
+                await addNewStoryMutation.mutateAsync(values); // Use the mutation function
+                formik.resetForm(); // Reset the form
                setActive("Stories")
                 
               
@@ -121,13 +159,7 @@ const AddStory = props => {
                 Add Story
                 </Button>
             </Box>
-            {
-            addRequestStatus === "pending" ? <Box sx={{marginTop: 4}}>
-              
-              <LinearProgress/>
-              
-              </Box> : null
-          }
+            
 
         </Box>
 

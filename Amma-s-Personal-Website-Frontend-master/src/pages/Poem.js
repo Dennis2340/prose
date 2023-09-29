@@ -1,43 +1,31 @@
-import React, { useEffect } from 'react';
-import PropTypes from 'prop-types';
-import { Box, Typography, Grid } from '@mui/material';
-import { Outlet } from 'react-router-dom';
-import { useSelector, useDispatch } from "react-redux"
-import { fetchPoems, getPoemError, getPoemStatus,getAllPoems } from '../appfeatures/poems/poemSlice';
+import React, {useState} from 'react';
+import { Box, Typography, Grid, InputBase, IconButton } from '@mui/material';
+import { fetchPoemsQuery,  } from '../appfeatures/poems/poemSlice';
 import LinearIndeterminate from '../Components/LoadingPage';
 import PoemCard from '../Components/Card';
+import { useQuery, useQueryClient, useInfiniteQuery } from 'react-query';
+import Search from '@mui/icons-material/Search';
 
 const Poem = ({poemId}) => {
 
-  const dispatch = useDispatch()
+  const queryClient = useQueryClient()
+  const { data: poems, isLoading, isError, error, isSuccess } = useQuery('poems', fetchPoemsQuery); // Replace 'fetchStories' with your fetch function
 
-  const poemList = useSelector(getAllPoems)
-  console.log(poemList)
-  const error = useSelector(getPoemError)
-  const poemStatus = useSelector(getPoemStatus)
 
-   useEffect(() => {
-    if(poemStatus === "idle"){
-      console.log("Fetching poems...");
-      dispatch(fetchPoems())
-      
-    }else if (poemStatus === "succeeded") {
-      console.log("Poems fetched successfully!");
-      console.log("Poem list:", poemList);
-    }
-   }, [poemStatus,dispatch,poemList])
+  const [searchTerm, setSearchTerm] = useState('');
 
-   useEffect(() => {
-    if (poemStatus === "succeeded") {
-      const orderedPoems = poemList.slice().sort((a, b) => {
-        return new Date(b.createdAt) - new Date(a.createdAt);
-      })
-      console.log(orderedPoems)
-    }
-  }, [poemList, poemStatus])
-  
+  // Filter poems based on search term
+  const filteredPoems = isSuccess
+  ? poems.poems.filter((poem) =>
+        poem.poemTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        poem.poemGenre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        poem.poemAuthor.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        poem.poemDetails.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : [];
+
    let content;
-   if(poemStatus === "loading"){
+   if(isLoading){
     return (
       <Box sx={{ marginTop: 25,}}>
         <LinearIndeterminate/>
@@ -45,21 +33,26 @@ const Poem = ({poemId}) => {
       
     )
    }
-   else if(poemStatus === "succeeded"){
-    const orderedPoem = poemList.slice().sort((a, b) => {
-      return new Date(b.createdAt) - new Date(a.createdAt);
-    });
-    
-   content = orderedPoem.map((poem, index) => (
-    <Grid item key={`${poem._id}-${index}`} xs={12} sm={6} md={6}>
-      <PoemCard poemId={poemId} poem={poem}/>
-    </Grid>
-    ))
+   else if(isSuccess){
+    content =
+      filteredPoems.length > 0 ? (
+        filteredPoems.map((poem, index) => (
+          <Grid item key={`${poem._id}-${index}`} xs={12} sm={6} md={6}>
+            <PoemCard poemId={poemId} poem={poem} />
+          </Grid>
+        ))
+      ) : (
+        <Typography variant="h3" color="textSecondary">
+          No poems found.
+        </Typography>
+      );
   }
    
-   else if (poemStatus === "failed"){
-    content = <p>error maybe internet issue</p>
+   else if (isError){
+    content = <p>{error}</p>
    }
+
+   queryClient.setQueryData('poemCache', poems);
     return (
   
     <Box sx={{
@@ -76,6 +69,28 @@ const Poem = ({poemId}) => {
           <Typography  variant='h4' component="h1">
             POEMS
           </Typography>
+          {/* Add search field */}
+          <Box sx={{ display: 'flex',justifyContent: "center",  alignItems: 'center', marginTop: 2, marginBottom: 10, maxWidth: {lg: "70%"}, marginLeft: {lg: 15} }}>
+            <InputBase
+              placeholder="Search for poems..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              fullWidth
+              sx={{
+                borderRadius: 1,
+                backgroundColor: (theme) => theme.palette.common.main,
+                pl: 2,
+                pr: 1,
+                boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.1)',
+              }}
+            />
+            <IconButton
+              onClick={() => setSearchTerm('')}
+              sx={{ padding: 0, marginLeft: -6}} // Add some styling to the clear button
+            >
+              <Search />
+            </IconButton>
+          </Box>
           </Box>
           <Grid container spacing={3}>
             {content}

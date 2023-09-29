@@ -1,63 +1,56 @@
-import React, { useEffect } from 'react';
-import PropTypes from 'prop-types';
-import { Box, Typography, Grid, Link } from '@mui/material';
-import BasicCard from '../../Components/StoryCard';
-import { Outlet } from 'react-router-dom';
-import { useSelector, useDispatch } from "react-redux"
-import { fetchStories, getAllStories, getStoryError, getStoryStatus } from '../../appfeatures/stories/storySlice';
-import LinearIndeterminate from '../../Components/LoadingPage';
-import StoryCard from '../../Components/StoryCard';
-const Stories = props => {
+import React, { useState } from 'react';
+import { Box, Typography, Grid, InputBase, IconButton } from '@mui/material';
+import { fetchStoryQuery, } from '../../appfeatures/stories/storySlice';
+import StoryCard from '../../Components/GeneralPageCompnent/StoryCard';
+import { useQuery, useQueryClient } from 'react-query';
+import { Clear ,Search} from '@mui/icons-material';
+import SkeletonCard from '../../Components/SkeletonCard';
 
-  const dispatch = useDispatch()
+const Stories = ({storyId}) => {
 
-  const storyList = useSelector(getAllStories)
-  console.log(storyList)
-  const error = useSelector(getStoryError)
- 
-  const storyStatus = useSelector(getStoryStatus)
-  
-   useEffect(() => {
-    if(storyStatus === "idle"){
-      dispatch(fetchStories())
-      
-    }
-   }, [storyStatus, dispatch])
+  const queryClient = useQueryClient()
+  const { data: storys, isLoading, isError, error, isSuccess } = useQuery('stories', fetchStoryQuery); // Replace 'fetchStories' with your fetch function
 
-   useEffect(() => {
-    if (storyStatus === "succeeded") {
-      const orderedStories = storyList.slice().sort((a, b) => {
-        return new Date(b.createdAt) - new Date(a.createdAt);
-      })
-      console.log(orderedStories)
-    }
-  }, [storyList, storyStatus])
-  
-   let content;
-   if(storyStatus === "loading"){
-    return (
-      <Box sx={{ marginTop: 25,}}>
-      <LinearIndeterminate/>
-    </Box>
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredPoems = isSuccess
+  ? storys.story.filter((story) =>
+      story.storyTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      story.storyGenre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      story.storyAuthor.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      story.storyDetailed.toLowerCase().includes(searchTerm.toLowerCase())
     )
+  : [];
+
+
+   let content;
+   if(isLoading){
+    content = Array.from({ length: 8 }).map((_, index) => (
+      <Grid item key={index} xs={12} sm={6} md={6}>
+        <SkeletonCard />
+      </Grid>
+    ));
    }
-   else if(storyStatus === "succeeded"){
+   else if(isSuccess){
+    content =
+    filteredPoems.length > 0 ? (
+      filteredPoems.map((story, index) => (
+        <Grid item key={`${story._id}-${index}`} xs={12} sm={6} md={6}>
+          <StoryCard storyId={storyId} story={story} />
+        </Grid>
+      ))
+    ) : (
+      <Typography variant="h3" color="textSecondary">
+        No poems found.
+      </Typography>
+    );
     
-   const orderedStory = storyList.slice().sort((a,b) => {
-    return new Date(b.createdAt) - new Date(a.createdAt);
-  })
-  console.log(orderedStory)
-  
-  content = orderedStory.map((story, index) => (
-    <Grid item key={`${story._id}-${index}`} xs={12} sm={6} md={6}>
-      <StoryCard story={story} />
-    </Grid>
-    ))
-    
    }
-   else if (storyStatus === "failed"){
-    content = <p>error maybe internet issue</p>
+   else if (isError){
+    content = <p>{error}</p>
    }
+
+   queryClient.setQueryData("storyCache", storys)
     return (
   <>
     <Box sx={{
@@ -75,6 +68,35 @@ const Stories = props => {
           <Typography  variant='h4' component="h1">
             STORIES
           </Typography>
+          </Box>
+          {/* Add search field */}
+          <Box sx={{ display: 'flex',justifyContent: "center",  alignItems: 'center', marginTop: 2, marginBottom: 2, maxWidth: {lg: "70%"}, marginLeft: {lg: 15} }}>
+            <InputBase
+              placeholder="Search for stories..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              fullWidth
+              sx={{
+                borderRadius: 1,
+                backgroundColor: (theme) => theme.palette.common.main,
+                pl: 2,
+                pr: 1,
+                boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.1)',
+              }}
+            />
+            {
+              searchTerm ? (
+               <IconButton
+                onClick={() => setSearchTerm('')}
+                sx={{ padding: 0, marginLeft: -6}} // Add some styling to the clear button
+                >
+              <Clear />
+            </IconButton>
+              ) : (
+                <Search sx={{ padding: 0, marginLeft: -6}}/>
+              )
+            }
+            
           </Box>
           <Grid container spacing={3}>
             {content}

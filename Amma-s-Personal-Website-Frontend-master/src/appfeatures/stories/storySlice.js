@@ -1,6 +1,5 @@
-import { createSlice, nanoid, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-import sub from "date-fns/sub";
 import api from "../../api";
 const STORY_URL = "http://localhost:3600/story"
 
@@ -10,16 +9,38 @@ const initialState = {
     error: null
 }
 
+export const fetchStoryQuery = async() => {
+  try {
+    const storyData =  await axios.get(STORY_URL + "/getAllStory")
+    if(storyData.status === 200){
+      return storyData.data
+    }
+    else{
+      return "Error Occured while fetching"
+    }
+  } catch (error) {
+    console.log(error)
+  }
+}
+
 export const fetchStories = createAsyncThunk("story/fetchStories", async() => {
   const storyData = await axios.get(STORY_URL + "/getAllStory")
-  console.log(storyData.data)
   return storyData.data
 })
+
+export const addNewStoryQuery = async(initialStory) => {
+  try {
+   const response = await api.post(STORY_URL + "/addStory", initialStory)
+   return response.data 
+ } catch (error) {
+    return error.message
+  }
+  
+}
 
 export const addNewStory = createAsyncThunk("story/addNewStory", async(initialStory) => {
    try {
     const response = await api.post(STORY_URL + "/addStory", initialStory)
-    console.log(response.data)
     return response.data   
   } catch (error) {
      return error.message
@@ -27,10 +48,19 @@ export const addNewStory = createAsyncThunk("story/addNewStory", async(initialSt
    
 })
 
+export const updateStoryQuery =  async(initialStory) => {
+  try {
+    const { _id } = initialStory
+     const response = await api.put(STORY_URL + `/updateStory/${_id}`, initialStory)
+     return response.data
+  } catch (error) {
+      return error.message
+  }
+}
+
 export const updateStory = createAsyncThunk("story/updateStory", async(initialStory) => {
-      const { _id } = initialStory
-      console.log(_id)
     try {
+      const { _id } = initialStory
        const response = await api.put(STORY_URL + `/updateStory/${_id}`, initialStory)
        return response.data
     } catch (error) {
@@ -38,9 +68,19 @@ export const updateStory = createAsyncThunk("story/updateStory", async(initialSt
     }
 })
 
-export const deleteStory = createAsyncThunk("story/deleteStory", async(initialStory) => {
-  const { _id } = initialStory
+export const deleteStoryQuery =  async(_id) => {
   try {
+
+   const response = await api.delete(STORY_URL + `/deleteStory/${_id}`)
+   return `${response?.status} : ${response?.statusText}`
+  } catch (error) {
+    return error.message
+  }
+}
+
+export const deleteStory = createAsyncThunk("story/deleteStory", async(initialStory) => {
+  try {
+    const { _id } = initialStory
    const response = await api.delete(STORY_URL + `/deleteStory/${_id}`)
    if(response?.status === 200) return initialStory
    return `${response?.status} : ${response?.statusText}`
@@ -50,8 +90,8 @@ export const deleteStory = createAsyncThunk("story/deleteStory", async(initialSt
 })
 
 export const getSinglePoem = createAsyncThunk("poem/fetchSinglePoem", async(initialPoem) => {
-  const { _id } = initialPoem
   try {
+    const { _id } = initialPoem
     const response = await axios.get(STORY_URL + `/getSinglePoem/${_id}`)
      return response.data
   } catch (error) {
@@ -95,8 +135,7 @@ const storySlice = createSlice({
             state.error = action.error.payload
           })
           .addCase(addNewStory.fulfilled, (state,action) => {
-            //action.payload.createdAt = new Date().toISOString()
-            console.log(action.payload)
+         
             state.stories.push(action.payload)
           })
           
@@ -105,7 +144,7 @@ const storySlice = createSlice({
           
             if (!updatedStory?._id) {
               console.log("Update could not happen, check for errors");
-              console.log(updatedStory);
+              
               return;
             }
           
@@ -122,7 +161,7 @@ const storySlice = createSlice({
           
             if (!deletedStory?._id) {
               console.log("Delete could not complete");
-              console.log(deletedStory);
+             
               return;
             }
           
@@ -135,7 +174,7 @@ const storySlice = createSlice({
 })
 
 export const getAllStories = (state) => {
-    console.log(state.stories)
+  
     return state.stories.stories
 }
 export const getStoryStatus = (state) => state.stories.status

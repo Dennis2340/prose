@@ -1,19 +1,28 @@
-import React, {useState} from 'react';
-import PropTypes from 'prop-types';
+import React, {useState, useContext} from 'react';
 import { Box } from '@mui/material';
-import DenseAppBar from '../Components/BasicBar';
 import { TextField, Typography, Button } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
 import { useFormik } from 'formik';
-import { Login, loginUser } from '../appfeatures/about/aboutSlice';
+import { Login,} from '../appfeatures/about/aboutSlice';
 import { useDispatch } from 'react-redux';
-import LinearIndeterminate from '../Components/LoadingPage';
 import LinearProgress from '@mui/material/LinearProgress';
-const LoginPage = (props) => {
-  const navigate = useNavigate();
+import { MyContext } from '../Layout';
+import Swal from "sweetalert2";
+
+const LoginPage = ({handleUserDetails}) => {
+ 
   const dispatch = useDispatch();
 
+  const Toast = Swal.mixin({
+    toast: true,
+    position: 'center',
+    timer: 3000,
+    timerProgressBar: true,
+    showConfirmButton: false,
+    
+  })
   const [loading, setLoading] = useState(false);
+  
+  const [active, setActive] = useContext(MyContext);
   const formik = useFormik({
     initialValues: {
       userEmail: '',
@@ -22,14 +31,16 @@ const LoginPage = (props) => {
     onSubmit: async(values) => {
       try {
         setLoading(true);
-        await dispatch(Login(values));
-        await dispatch(loginUser())
+        const response = await dispatch(Login(values));
+       
+        handleUserDetails(response.payload)
         setLoading(false);
-        navigate('/');
-        //window.location.reload()
-        
-        
-        console.log(values);
+        setActive("Home") 
+        Toast.fire({
+          icon: 'success',
+          title: 'Login successful',
+          
+        });
       } catch (error) {
         console.log(error.message);
       }
@@ -37,24 +48,16 @@ const LoginPage = (props) => {
   });
 
   return (
-    <div>
-      <Box>
-        <DenseAppBar />
-      </Box>
-
-      <Box sx={{ marginTop: 13, textAlign: 'center' }}>
+    <Box sx={{ maxWidth: "708.667px",marginLeft: {lg: -10}}}>
+      <Box sx={{ textAlign: 'center' }}>
         <Typography variant="h4" component="h2">
           Login
         </Typography>
       </Box>
-
       <Box
         sx={{
           display: { xs: 'block', sm: 'block' },
           marginTop: 5,
-          marginLeft: 'auto',
-          marginRight: 'auto',
-          width: { xs: '75%', sm: '50%' },
         }}
       >
         <div style={{ marginTop: 40, height: 50 }}>
@@ -80,20 +83,14 @@ const LoginPage = (props) => {
             onChange={formik.handleChange}
           />
         </div>
-        <div style={{ marginTop: 40, height: 50 }}>
+        <Box sx={{marginTop: 5}}>
           <Button variant="contained" fullWidth onClick={formik.handleSubmit}>
             Login
           </Button>
-        </div>
-        {
-            loading === true ? <Box sx={{marginTop: 4}}>
-              
-              <LinearProgress/>
-              
-              </Box> : null
-          }
+        </Box>
+          
       </Box>
-    </div>
+    </Box>
   );
 };
 

@@ -1,6 +1,5 @@
-import { createSlice, nanoid, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-import sub from "date-fns/sub";
 import api from "../../api";
 const POEM_URL = "http://localhost:3600/poem"
 
@@ -10,16 +9,36 @@ const initialState = {
     error: null
 }
 
+export const fetchPoemsQuery = async() => {
+  try {
+    const poemData =  await axios.get(POEM_URL + `/getAllPoems`)
+    if(poemData.status === 200){
+      return poemData.data
+    }
+    else{
+      return "Error Occured while fetching"
+    }
+  } catch (error) {
+    console.log(error)
+  }
+}
 export const fetchPoems = createAsyncThunk("poems/fetchPoems", async()=> {
  const poemData =  await axios.get(POEM_URL + "/getAllPoems")
- console.log(poemData.data)
  return poemData.data
 })
 
+export const addNewPoemQuery = async(initialPoem) => {
+  try {
+   const response = await api.post(POEM_URL + "/addPoem", initialPoem)
+   return response.data 
+ } catch (error) {
+    return error.message
+  }
+  
+}
 export const addNewPoem = createAsyncThunk("poem/addNewPoem", async(initialPoem) => {
    try {
     const response = await api.post(POEM_URL + "/addPoem", initialPoem)
-    console.log(response.data)
     return response.data   
   } catch (error) {
      return error.message
@@ -28,9 +47,8 @@ export const addNewPoem = createAsyncThunk("poem/addNewPoem", async(initialPoem)
 })
 
 export const updatePoem = createAsyncThunk("poem/updatePoem", async(initialPoem) => {
-      const { _id } = initialPoem
-      console.log(_id)
     try {
+      const { _id } = initialPoem
        const response = await api.put(POEM_URL + `/updatePoem/${_id}`, initialPoem)
        return response.data
     } catch (error) {
@@ -38,9 +56,19 @@ export const updatePoem = createAsyncThunk("poem/updatePoem", async(initialPoem)
     }
 })
 
-export const deletePoem = createAsyncThunk("poem/deletePoem", async(initialPoem) => {
-  const { _id } = initialPoem
+export const updatePoemQuery =  async(initialPoem) => {
   try {
+    const { _id } = initialPoem
+     const response = await api.put(POEM_URL + `/updatePoem/${_id}`, initialPoem)
+     return response.data
+  } catch (error) {
+      return error.message
+  }
+}
+
+export const deletePoem = createAsyncThunk("poem/deletePoem", async(initialPoem) => {
+  try {
+    const { _id } = initialPoem
    const response = await api.delete(POEM_URL + `/deletePoem/${_id}`)
    if(response?.status === 200) return initialPoem
    return `${response?.status} : ${response?.statusText}`
@@ -49,9 +77,19 @@ export const deletePoem = createAsyncThunk("poem/deletePoem", async(initialPoem)
   }
 })
 
-export const getSinglePoem = createAsyncThunk("poem/fetchSinglePoem", async(initialPoem) => {
-  const { _id } = initialPoem
+export const deletePoemQuery =  async(_id) => {
   try {
+
+   const response = await api.delete(POEM_URL + `/deletePoem/${_id}`)
+   return `${response?.status} : ${response?.statusText}`
+  } catch (error) {
+    return error.message
+  }
+}
+
+export const getSinglePoem = createAsyncThunk("poem/fetchSinglePoem", async(initialPoem) => {
+  try {
+    const { _id } = initialPoem
     const response = await axios.get(POEM_URL + `/getSinglePoem/${_id}`)
      return response.data
   } catch (error) {
@@ -77,7 +115,7 @@ const poemSlice = createSlice({
           })
           .addCase(fetchPoems.fulfilled, (state,action) => {
             state.status = "succeeded"
-            let min = 1
+            
              const loadedPoems = action.payload.poems.map(poem => {
                 // poem.createdAt = sub(new Date(), { minutes: min++})
                  return poem
@@ -91,8 +129,7 @@ const poemSlice = createSlice({
             state.error = action.error.payload
           })
           .addCase(addNewPoem.fulfilled, (state,action) => {
-            //action.payload.createdAt = new Date().toISOString()
-            console.log(action.payload)
+            
             state.poems.push(action.payload)
           })
           
@@ -101,13 +138,13 @@ const poemSlice = createSlice({
           
             if (!updatedPoem?._id) {
               console.log("Update could not happen, check for errors");
-              console.log(updatedPoem);
+              
               return;
             }
           
-            const updatedPoems = state.poems.map((poem) =>
-              poem._id === updatedPoem._id ? updatedPoem : poem
-            );
+            const updatedPoems = state.poems.map((poem) => {
+              return poem
+            });
           
             state.poems = updatedPoems;
           })
@@ -117,10 +154,9 @@ const poemSlice = createSlice({
           
             if (!deletedPoem?._id) {
               console.log("Delete could not complete");
-              console.log(deletedPoem);
+            
               return;
             }
-          
             state.poems = state.poems.filter((poem) => poem._id !== deletedPoem._id);
           })
           
@@ -130,7 +166,7 @@ const poemSlice = createSlice({
 })
 
 export const getAllPoems = (state) => {
-    console.log(state.poems)
+ 
     return state.poems.poems
 }
 export const getPoemStatus = (state) => state.poems.status

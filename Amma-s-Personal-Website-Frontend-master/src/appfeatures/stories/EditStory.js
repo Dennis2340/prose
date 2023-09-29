@@ -1,27 +1,105 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { TextField, Button,Box, Typography } from '@mui/material';
-import DenseAppBar from '../../Components/BasicBar';
 import { useFormik } from 'formik';
-import { selectStoryById,updateStory, deleteStory, fetchStories } from './storySlice';
-import { useEffect } from 'react';
-import { useSelector, useDispatch } from "react-redux"
-import { useState } from 'react'
-import { useParams } from 'react-router-dom';
-import { useNavigate  } from 'react-router-dom';
-const EditStory = props => {
+import { updateStoryQuery, deleteStoryQuery, fetchStoryQuery } from './storySlice';
+import {  useContext } from 'react';
+import { MyAdminContext } from '../../pages/Admin';
+import { useMutation, useQueryClient, useQuery } from 'react-query';
+import Swal from "sweetalert2";
 
-    const { id } = useParams()
-    const navigate = useNavigate()
+const EditStory = ({id}) => {
+
+    const { data: storys, isLoading, isError, error } = useQuery('stories', fetchStoryQuery, {
+        initialData: {
+          storys: [],
+        },
+      });
     
-    const story = useSelector(state => selectStoryById(state,id))
+      const story =  storys.story.find((story) => story._id === id);
+ 
+      const queryClient = useQueryClient()
+      const Toast = Swal.mixin({
+        toast: true,
+        position: 'center',
+        timer: 3000,
+        timerProgressBar: true,
+        showConfirmButton: false,
         
-    const dispatch = useDispatch()
-    const [addRequestStatus, setAddRequestStatus] = useState("idle")
+      })
+
+    const [active, setActive] = useContext(MyAdminContext) 
+  
+    const updateStoryMutation = useMutation(
+        async (updatedStory) => {
+          try {
+            // Use your existing function to update the poem
+            const response = await updateStoryQuery(updatedStory);
     
-    const handleDelete = async() =>{
-      await dispatch(deleteStory(story))
-      navigate("/stories")
+            // Assuming your API returns the updated poem
+            return response.data;
+          } catch (error) {
+            throw new Error(error.message);
+          }
+        },
+        {
+          onMutate: (newData) => {
+            // Optimistically update the poem in the cache
+            queryClient.setQueryData(['stories', id], (oldData) => {
+              return {
+                ...oldData,
+                ...newData,
+              };
+            });
+          },
+          onError: (error) => {
+            Toast.fire({
+              icon: 'error',
+              title: 'Error',
+              text: error.message,
+            });
+            console.error('Error updating story:', error);
+          },
+          onSuccess: (data) => {
+            Toast.fire({
+              icon: 'success',
+              title: 'Story Updated Successfully',
+              text: "Story updated successfully",
+            });
+          },
+          onSettled: () => {
+            // Refetch the storys after the mutation is settled
+            queryClient.invalidateQueries('stories');
+          },
+        }
+      );
+
+      const deleteStoryMutation = useMutation(
+        () => deleteStoryQuery(id),
+        {
+          onError: (error) => {
+            Toast.fire({
+              icon: 'error',
+              title: 'Error',
+              text: error.message,
+            });
+            console.error('Error deleting story:', error);
+          },
+          onSuccess: () => {
+            Toast.fire({
+              icon: 'success',
+              title: 'Story deleted successfully',
+            });
+          },
+          onSettled: () => {
+            // Redirect or perform any other actions after deletion
+            setActive('Stories');
+          },
+        }
+      );
+
+    const handleDelete = async(id) =>{
+        await deleteStoryMutation.mutateAsync(id)
+       setActive("Stories")
     }
 
     const formik = useFormik({
@@ -36,11 +114,8 @@ const EditStory = props => {
             if(values){
             try{
                 
-              setAddRequestStatus("pending")
-              await dispatch(updateStory(values))  
-              await dispatch(fetchStories())
-              navigate("/stories")
-              window.location.reload()
+                await updateStoryMutation.mutateAsync(values)
+                setActive("Stories")
               
             }catch(error){
                 console.log(error.message)
@@ -51,20 +126,9 @@ const EditStory = props => {
     }
     })
 
-    useEffect(() => {
-        formik.setValues({
-          _id: id,
-          storyTitle: story?.storyTitle,
-          storyGenre: story?.storyGenre,
-          storyDetailed: story?.storyDetailed,
-          storyAuthor: story?.storyAuthor,
-        });
-      }, [story, dispatch]);
-   
     return (
-    <div>
-        <DenseAppBar/>
-         <Box sx={{textAlign: "center", marginTop: 11}}>
+    <Box sx={{maxWidth: "708.667px",marginLeft: {xs: 0, lg: -5}}}>
+         <Box sx={{textAlign: "center", marginLeft: {xs: 0, lg: -5}}}>
             <Typography variant="h4" component="h3">
                 Edit Story
             </Typography>
@@ -72,11 +136,8 @@ const EditStory = props => {
 
         <Box
           sx={{
-            width: {xs: "75%", sm: "50%"},
             display: {xs:"block", sm: "block"},
             marginTop: 5,
-            marginLeft: "auto",
-            marginRight: "auto"
           }}
         >
             <div>
@@ -139,7 +200,7 @@ const EditStory = props => {
                  variant="contained"
                  color='secondary'
                  fullWidth={true}
-                 onClick={handleDelete}
+                 onClick={()=> handleDelete(formik.values._id)}
                 > 
                 Delete Story
                 </Button>
@@ -147,7 +208,7 @@ const EditStory = props => {
 
         </Box>
 
-    </div>
+    </Box>
     );
 };
 

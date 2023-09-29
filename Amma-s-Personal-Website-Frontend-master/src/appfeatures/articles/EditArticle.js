@@ -1,27 +1,102 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React, {useContext} from 'react';
 import { TextField, Button,Box, Typography } from '@mui/material';
-import DenseAppBar from '../../Components/BasicBar';
 import { useFormik } from 'formik';
-import { selectArticleById,updateArticle, deleteArticle } from './articleSlice';
-import { useEffect } from 'react';
-import { useSelector, useDispatch } from "react-redux"
-import { useState } from 'react'
-import { useParams } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
-const EditArticle = props => {
+import { updateArticleQuery, deleteArticleQuery, fetchArticleQuery } from './articleSlice';
+import { MyAdminContext } from '../../pages/Admin';
+import { useMutation, useQueryClient, useQuery } from 'react-query';
+import Swal from "sweetalert2";
 
-    const { id } = useParams()
-    
-    const navigate = useNavigate()
-    const article = useSelector(state => selectArticleById(state,id))
+const EditArticle = ({id}) => {
+
+    const { data: articles, isLoading, isError, error } = useQuery('articles', fetchArticleQuery, {
+        initialData: {
+          articles: [],
+        },
+      });
+      const article =  articles.article.find((article) => article._id === id);
+      const queryClient = useQueryClient()
+      const Toast = Swal.mixin({
+        toast: true,
+        position: 'center',
+        timer: 3000,
+        timerProgressBar: true,
+        showConfirmButton: false,
         
-    const dispatch = useDispatch()
-    const [addRequestStatus, setAddRequestStatus] = useState("idle")
+      })
+
+      const [active, setActive] = useContext(MyAdminContext)   
+   
+      const updateArticleMutation = useMutation(
+        async (updatedArticle) => {
+          try {
+            // Use your existing function to update the poem
+            const response = await updateArticleQuery(updatedArticle);
     
-    const handleDelete = async() =>{
-       await dispatch(deleteArticle(article))
-       navigate("/articles")
+            // Assuming your API returns the updated poem
+            return response.data;
+          } catch (error) {
+            throw new Error(error.message);
+          }
+        },
+        {
+          onMutate: (newData) => {
+            // Optimistically update the poem in the cache
+            queryClient.setQueryData(['articles', id], (oldData) => {
+              return {
+                ...oldData,
+                ...newData,
+              };
+            });
+          },
+          onError: (error) => {
+            Toast.fire({
+              icon: 'error',
+              title: 'Error',
+              text: error.message,
+            });
+            console.error('Error updating article:', error);
+          },
+          onSuccess: () => {
+            Toast.fire({
+              icon: 'success',
+              title: 'Article Updated Successfully',
+              text: "article updated successfully",
+            });
+          },
+          onSettled: () => {
+            // Refetch the articles after the mutation is settled
+            queryClient.invalidateQueries('articles');
+          },
+        }
+      );
+
+      const deleteArticleMutation = useMutation(
+        () => deleteArticleQuery(id),
+        {
+          onError: (error) => {
+            Toast.fire({
+              icon: 'error',
+              title: 'Error',
+              text: error.message,
+            });
+            console.error('Error deleting article:', error);
+          },
+          onSuccess: () => {
+            Toast.fire({
+              icon: 'success',
+              title: 'Article deleted Successfully',
+            });
+          },
+          onSettled: () => {
+            // Redirect or perform any other actions after deletion
+            setActive('Articles');
+          },
+        }
+      );
+    
+    const handleDelete = async(id) =>{
+       await deleteArticleMutation.mutateAsync(id)
+       setActive("Articles")
     }
 
     const formik = useFormik({
@@ -35,36 +110,28 @@ const EditArticle = props => {
         onSubmit: async(values) => {
             if(values){
             try{
-              setAddRequestStatus("pending")
-              await dispatch(updateArticle(values))  
-              navigate("/articles")
-             window.location.reload()
+              await updateArticleMutation.mutateAsync(values);
+              setActive("Articles")
               
             }catch(error){
                 console.log(error.message)
             }
         
-            
-        }
+         }
     }
     })
-
-
     return (
-    <div>
-        <DenseAppBar/>
-        <Box sx={{textAlign: "center", marginTop: 12}}>
+    <Box sx={{maxWidth: "708.667px",marginLeft: {xs: 0, lg: -5}}}>
+       
+        <Box sx={{textAlign: "center", marginLeft: {xs: 0, lg: -5}}}>
             <Typography variant="h4" component="h3">
                 Update Article
             </Typography>
         </Box>
         <Box
         sx={{
-            width: {xs: "75%", sm: "50%"},
             display: {xs:"block", sm: "block"},
             marginTop: 5,
-            marginLeft: "auto",
-            marginRight: "auto"
           }}
         >
            <div>
@@ -128,7 +195,7 @@ const EditArticle = props => {
                  variant="contained"
                  color='secondary'
                  fullWidth={true}
-                 onClick={handleDelete}
+                 onClick={() => handleDelete(formik.values._id)}
                 > 
                 Delete Article
                 </Button>
@@ -136,7 +203,7 @@ const EditArticle = props => {
             
         </Box>
 
-    </div>
+    </Box>
     )
     ;
 };

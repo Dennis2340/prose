@@ -1,6 +1,5 @@
-import { createSlice, nanoid, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-import sub from "date-fns/sub";
 import api from "../../api";
 const ARTICLE_URL = "http://localhost:3600/article"
 
@@ -12,14 +11,27 @@ const initialState = {
 
 export const fetchArticles = createAsyncThunk("article/fetchArticles", async() => {
     const articleData = await axios.get(ARTICLE_URL + "/getAllArticles")
-    console.log(articleData.data)
     return articleData.data
   })
+
+  export const fetchArticleQuery = async() => {
+    try {
+      const articleData =  await axios.get(ARTICLE_URL + "/getAllArticles")
+      if(articleData.status === 200){
+        return articleData.data
+      }
+      else{
+        return "Error Occured while fetching"
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   export const addNewArticle = createAsyncThunk("article/addNewArticle", async(initialArticle) => {
     try {
      const response = await api.post(ARTICLE_URL + "/addArticle", initialArticle)
-     console.log(response.data)
+    
      return response.data   
    } catch (error) {
       return error.message
@@ -27,10 +39,19 @@ export const fetchArticles = createAsyncThunk("article/fetchArticles", async() =
     
  })
 
- export const updateArticle = createAsyncThunk("article/updateArticle", async(initialArticle) => {
-    const { _id } = initialArticle
-    console.log(_id)
+ export const addNewArticleQuery =  async(initialArticle) => {
   try {
+   const response = await api.post(ARTICLE_URL + "/addArticle", initialArticle)
+   return response.data   
+ } catch (error) {
+    return error.message
+  }
+  
+}
+
+ export const updateArticle = createAsyncThunk("article/updateArticle", async(initialArticle) => {  
+  try {
+    const { _id } = initialArticle
      const response = await api.put(ARTICLE_URL + `/updateArticle/${_id}`, initialArticle)
      return response.data
   } catch (error) {
@@ -38,9 +59,19 @@ export const fetchArticles = createAsyncThunk("article/fetchArticles", async() =
   }
 })
 
+export const updateArticleQuery = async(initialArticle) => {  
+  try {
+    const { _id } = initialArticle
+     const response = await api.put(ARTICLE_URL + `/updateArticle/${_id}`, initialArticle)
+     return response.data
+  } catch (error) {
+      return error.message
+  }
+}
+
 export const deleteArticle = createAsyncThunk("article/deleteArticle", async(initialArticle) => {
-const { _id } = initialArticle
 try {
+  const { _id } = initialArticle
  const response = await api.delete(ARTICLE_URL + `/deleteArticle/${_id}`)
  if(response?.status === 200) return initialArticle
  return `${response?.status} : ${response?.statusText}`
@@ -48,6 +79,15 @@ try {
   return error.message
 }
 })
+
+export const deleteArticleQuery =  async(_id) => {
+  try {
+   const response = await api.delete(ARTICLE_URL + `/deleteArticle/${_id}`)
+   return `${response?.status} : ${response?.statusText}`
+  } catch (error) {
+    return error.message
+  }
+  }
 
 const articleSlice = createSlice({
     name: "articles",
@@ -84,7 +124,7 @@ const articleSlice = createSlice({
           })
           .addCase(addNewArticle.fulfilled, (state,action) => {
             //action.payload.createdAt = new Date().toISOString()
-            console.log(action.payload)
+            
             state.articles.push(action.payload)
           })
           
@@ -93,7 +133,7 @@ const articleSlice = createSlice({
           
             if (!updatedArticle?._id) {
               console.log("Update could not happen, check for errors");
-              console.log(updatedArticle);
+              
               return;
             }
           
@@ -110,7 +150,7 @@ const articleSlice = createSlice({
           
             if (!deletedArticle?._id) {
               console.log("Delete could not complete");
-              console.log(deletedArticle);
+              
               return;
             }
           
@@ -123,7 +163,7 @@ const articleSlice = createSlice({
 })
 
 export const getAllArticles = (state) => {
-    console.log(state.articles)
+    
     return state.articles.articles
 }
 export const getArticleStatus = (state) => state.articles.status

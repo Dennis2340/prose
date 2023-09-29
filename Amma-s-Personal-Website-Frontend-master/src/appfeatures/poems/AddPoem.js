@@ -1,23 +1,71 @@
 import React, { useContext } from 'react';
-import PropTypes from 'prop-types';
 import { TextField, Button,Box, Typography } from '@mui/material';
-import DenseAppBar from '../../Components/BasicBar';
 import { useFormik } from 'formik';
-import { addNewPoem, fetchPoems} from './poemSlice';
-import { useEffect } from 'react';
-import { useSelector, useDispatch } from "react-redux"
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import LinearProgress from '@mui/material/LinearProgress';
+import { addNewPoemQuery, fetchPoemsQuery} from './poemSlice';
 import { MyAdminContext } from '../../pages/Admin';
+import { useMutation, useQueryClient, useQuery } from 'react-query';
+import Swal from "sweetalert2";
+
 const AddPoem = props => {
 
-    const [active, setActive] = useContext(MyAdminContext)
-    const navigate = useNavigate()
+    // eslint-disable-next-line no-unused-vars
+    const { data: poems, isLoading, isError, error } = useQuery('poems', fetchPoemsQuery, {
+        initialData: {
+          poems: [],
+        },
+      });
 
-    const dispatch = useDispatch()
-    const [addRequestStatus, setAddRequestStatus] = useState("idle")
-    
+    const Toast = Swal.mixin({
+        toast: true,
+        position: 'center',
+        timer: 3000,
+        timerProgressBar: true,
+        showConfirmButton: false,
+        
+      })
+
+    const queryClient = useQueryClient()
+    const addNewPoemMutation = useMutation(addNewPoemQuery, {
+        onMutate: async (newPoemData) => {
+          // Optimistically add the new poem to the cache
+          queryClient.setQueryData('poems', (oldData) => {
+            return {
+              ...oldData,
+              poems: [
+                ...oldData.poems,
+                {
+                  _id: 'temp-id', // Generate a temporary ID for the optimistic update
+                  ...newPoemData,
+                },
+              ],
+            };
+          });
+        },
+        onError: (error) => {
+            Toast.fire({
+                icon: 'error',
+                title: 'Error',
+                text: error.message,
+            })
+          console.error('Error adding new poem:', error);
+        },
+        onSuccess: (data, variables, context) => {
+            // Assuming your backend returns a success status code (e.g., 200)
+              // Display a success toast
+              Toast.fire({
+                icon: 'success',
+                title: 'Poem Added Successfully',
+                text: data.message,
+              });
+            
+          },
+        onSettled: () => {
+          // Refetch the poems after the mutation is settled
+          queryClient.invalidateQueries('poems');
+        },
+      });
+      
+    const [active, setActive] = useContext(MyAdminContext)
     const formik = useFormik({
         initialValues: {
         poemTitle: "",
@@ -28,14 +76,10 @@ const AddPoem = props => {
         onSubmit: async(values) => {
             if(values){
             try{
-              setAddRequestStatus("pending")
-              await dispatch(addNewPoem(values)) 
-              await dispatch(fetchPoems())
-              values.poemAuthor = ""
-              values.poemDetails = ""
-              values.poemTitle = ""
-              values.poemGenre = ""
-              setActive("Poems")
+              
+                await addNewPoemMutation.mutateAsync(values); // Use the mutation function
+                formik.resetForm(); // Reset the form
+                setActive('Poems');
             }catch(error){
                 console.log(error.message)
             }
@@ -112,15 +156,7 @@ const AddPoem = props => {
                 > 
                 Add Poem
                 </Button>
-            </Box>
-            {
-            addRequestStatus === "pending" ? <Box sx={{marginTop: 4}}>
-              
-              <LinearProgress/>
-              
-              </Box> : null
-          }
-            
+            </Box>    
         </Box>
 
     </div>

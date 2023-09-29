@@ -1,16 +1,14 @@
-import React, { useContext, useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
-import DenseAppBar from '../../Components/BasicBar';
+import React, { useContext, useState } from 'react';
 import { Box, Card, CardContent, Typography, Container, Grid,Button } from '@mui/material';
-import { useParams, NavLink } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
-import { fetchPoems, selectPoemById, getAllPoems } from './poemSlice';
+import { fetchPoemsQuery, } from './poemSlice';
 import { styled } from '@mui/system';
 import { MyAdminContext } from '../../pages/Admin';
+import { useQuery,useQueryClient } from 'react-query';
 
 const StyledCard = styled(Card)(
   ({ theme }) => ({
     width: '100%',
+    height: '100%',
     textAlign: 'center',
     maxWidth: 500,
     margin: 'auto',
@@ -35,22 +33,25 @@ const StyledButton = styled(Button)(
 );
 
 const SinglePoem = ({id}) => {
+
+  const queryClient = useQueryClient()
+ 
   const [idState, setIdState] = useState("")
 
-  const dispatch = useDispatch();
+  const poems = queryClient.getQueryData('poemCache');
+
+
   const [active, setActive] = useContext(MyAdminContext)
-  const allPoems = useSelector(getAllPoems);
+  const allPoems = poems.poems
 
   const realId = idState ? idState : id
-  const poem = useSelector((state) => selectPoemById(state, realId));
-  useEffect(() => {
-    // Fetch all poems when the component mounts
-    dispatch(fetchPoems());
-  }, [dispatch]);
+  const poem =  poems.poems.find((poem) => poem._id === realId);
+ 
 
   const handleClick = (id) => {
     setActive("SinglePoem")
     setIdState(id)
+    console.log(id)
     window.scrollTo({
       top: 0,
       behavior: "smooth"
@@ -72,6 +73,9 @@ const SinglePoem = ({id}) => {
                 <Typography variant="h5" color="text.secondary">
                   {poem.poemTitle}
                 </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {poem.poemGenre}
+                </Typography>
                 <Typography sx={{ marginTop: 2 }} variant="body2">
                   {poem.poemDetails}
                 </Typography>
@@ -92,17 +96,19 @@ const SinglePoem = ({id}) => {
               Other Poems
             </Typography>
             </Box>
-          <Grid container spacing={2}>
+          <Grid container spacing={5}>
               {allPoems.map((otherPoem) => (
-              <Grid item xs={12} md={6} sx={{ marginTop: 0, }}>
+              <Grid key={otherPoem._id} item xs={12} md={6} sx={{ marginTop: 0, }}>
                 <StyledCard
-                  key={otherPoem._id}
                   variant="outlined"
                   sx={{ marginBottom: 2 ,}}
                 >
                   <StyledCardContent>
                     <Typography variant="h6" color="text.secondary">
                       {otherPoem.poemTitle}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {otherPoem.poemGenre}
                     </Typography>
                     <Typography variant="body2">
                       {otherPoem.poemDetails?.substring(0, 40) + '...'}

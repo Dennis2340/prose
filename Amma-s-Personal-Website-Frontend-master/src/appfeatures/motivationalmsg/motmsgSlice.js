@@ -1,6 +1,5 @@
-import { createSlice, nanoid, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-import sub from "date-fns/sub";
 import api from "../../api";
 const MOTMSG_URL = "http://localhost:3600/motivationalmessage"
 
@@ -10,16 +9,30 @@ const initialState = {
     error: null
 }
 
+export const fetchMotMsgQuery = async() => {
+  try {
+    const motmsgData =  await axios.get(MOTMSG_URL + "/getAllMotMessage")
+    if(motmsgData.status === 200){
+      return motmsgData.data
+    }
+    else{
+      return "Error Occured while fetching"
+    }
+  } catch (error) {
+    console.log(error)
+  }
+}
+
 export const fetchMotMsg = createAsyncThunk("motmsg/fetchMotMsg", async() => {
     const motmsgData = await axios.get(MOTMSG_URL + "/getAllMotMessage")
-    console.log(motmsgData.data)
+
     return motmsgData.data
   })
 
   export const addNewMotMsg = createAsyncThunk("motmsg/addNewMotMsg", async(initialMotMsg) => {
     try {
      const response = await api.post(MOTMSG_URL + "/addMotMessage", initialMotMsg)
-     console.log(response.data)
+    
      return response.data   
    } catch (error) {
       return error.message
@@ -27,10 +40,19 @@ export const fetchMotMsg = createAsyncThunk("motmsg/fetchMotMsg", async() => {
     
  })
 
- export const updateMotMsg = createAsyncThunk("motmsg/updateMotMsg", async(initialMotMsg) => {
-    const { _id } = initialMotMsg
-    console.log(_id)
+ export const addNewMotMsgQuery =  async(initialMotMsg) => {
   try {
+   const response = await api.post(MOTMSG_URL + "/addMotMessage", initialMotMsg)
+   return response.data   
+ } catch (error) {
+    return error.message
+  }
+  
+}
+
+ export const updateMotMsg = createAsyncThunk("motmsg/updateMotMsg", async(initialMotMsg) => {
+  try {
+    const { _id } = initialMotMsg
      const response = await api.put(MOTMSG_URL + `/updateMotMessage/${_id}`, initialMotMsg)
      return response.data
   } catch (error) {
@@ -38,9 +60,19 @@ export const fetchMotMsg = createAsyncThunk("motmsg/fetchMotMsg", async() => {
   }
 })
 
+export const updateMotMsgQuery = async(initialMotMsg) => {
+  try {
+    const { _id } = initialMotMsg
+     const response = await api.put(MOTMSG_URL + `/updateMotMessage/${_id}`, initialMotMsg)
+     return response.data
+  } catch (error) {
+      return error.message
+  }
+}
+
 export const deleteMotMsg = createAsyncThunk("motmsg/deleteMotMsg", async(initialMotMsg) => {
-const { _id } = initialMotMsg
 try {
+  const { _id } = initialMotMsg
  const response = await api.delete(MOTMSG_URL + `/deleteMotMessage/${_id}`)
  if(response?.status === 200) return initialMotMsg
  return `${response?.status} : ${response?.statusText}`
@@ -48,6 +80,15 @@ try {
   return error.message
 }
 })
+
+export const deleteMotMsgQuery = async(_id) => {
+  try {
+   const response = await api.delete(MOTMSG_URL + `/deleteMotMessage/${_id}`)
+   return `${response?.status} : ${response?.statusText}`
+  } catch (error) {
+    return error.message
+  }
+}
 
 const motmsgSlice = createSlice({
     name: "motmessages",
@@ -85,7 +126,7 @@ const motmsgSlice = createSlice({
           })
           .addCase(addNewMotMsg.fulfilled, (state,action) => {
             //action.payload.createdAt = new Date().toISOString()
-            console.log(action.payload)
+            
             state.motmessages.push(action.payload)
           })
           
@@ -94,7 +135,7 @@ const motmsgSlice = createSlice({
           
             if (!updatedMotMsg?._id) {
               console.log("Update could not happen, check for errors");
-              console.log(updatedMotMsg);
+              
               return;
             }
           
@@ -111,7 +152,7 @@ const motmsgSlice = createSlice({
           
             if (!deletedMotMsg?._id) {
               console.log("Delete could not complete");
-              console.log(deletedMotMsg);
+              
               return;
             }
           
@@ -124,7 +165,6 @@ const motmsgSlice = createSlice({
 })
 
 export const getAllMotMsg = (state) => {
-    console.log(state.motmessages)
     return state.motmessages.motmessages
 }
 export const getMotMsgStatus = (state) => state.motmessages.status

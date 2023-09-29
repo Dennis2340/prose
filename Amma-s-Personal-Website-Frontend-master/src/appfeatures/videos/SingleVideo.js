@@ -1,20 +1,53 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import PropTypes from 'prop-types';
 import DenseAppBar from '../../Components/BasicBar';
 import { Box, Button, Card, CardContent, Typography } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { deleteVideo, fetchVideos, selectVideoById } from './videoSlice';
+import { deleteVideo, fetchVideos, selectVideoById, getAllVideos } from './videoSlice';
 import LinearProgress from '@mui/material/LinearProgress';
 import axios from 'axios';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 import { useDispatch } from 'react-redux';
-const SingleVideo = () => {
+import { Container, styled } from '@mui/system';
+import { MyAdminContext } from '../../pages/Admin';
+import Grid from '@mui/system/Unstable_Grid/Grid';
+import { Video } from '../../pages/Video';
 
+const StyledCard = styled(Card)(
+  ({ theme }) => ({
+    width: '100%',
+    textAlign: 'center',
+    maxWidth: 500,
+    margin: 'auto',
+    boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
+    transition: '0.3s',
+    '&:hover': {
+      boxShadow: '0px 8px 16px rgba(0, 0, 0, 0.2)',
+    },
+  })
+);
+
+const StyledCardContent = styled(CardContent)(
+  ({ theme }) => ({
+    padding: theme.spacing(2),
+  })
+);
+
+const StyledButton = styled(Button)(
+  ({ theme }) => ({
+    marginTop: theme.spacing(3),
+  })
+);
+
+const SingleVideo = ({id}) => {
+
+  const [idState, setIdState] = useState("")
   const dispatch = useDispatch()
   const navigate = useNavigate()
-  const { id } = useParams();
+  const [active, setActive] = useContext(MyAdminContext)
+  
   const [videoUrl, setVideoUrl] = useState('');
   const isAuthenticated = useSelector(state => state.user.isAuthenticated)
 
@@ -22,17 +55,18 @@ const SingleVideo = () => {
 
   console.log(isAuthenticated)
 
-  const video = useSelector(state => selectVideoById(state, id))
-  console.log(video)
+  const realId = idState ? idState : id
+  const video = useSelector(state => selectVideoById(state, realId))
+
+  const allVideos = useSelector(getAllVideos);
+
   useEffect(() => {
     const fetchVideoUrl = async () => {
       try {
-        dispatch(fetchVideos())
-        const response = await axios.get(`http://localhost:3600/getSingleVideo/${id}`, {
+        await dispatch(fetchVideos())
+        const response = await axios.get(`http://localhost:3600/getSingleVideo/${realId}`, {
           responseType: 'blob', // Set the response type to 'blob' to handle binary data
         });
-
-        
         // Create a URL object from the received blob data
         const videoBlob = new Blob([response.data], { type: 'video/mp4' });
         const videoUrl = URL.createObjectURL(videoBlob);
@@ -44,7 +78,7 @@ const SingleVideo = () => {
     };
 
      fetchVideoUrl();
-  }, [id, dispatch]);
+  }, [realId, dispatch]);
 
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
@@ -54,15 +88,13 @@ const paddingTopValue = isSmallScreen ? '150%' : '56.46%';
 const handleDelete = async() => {
     setDeleteLoad(true)
     await dispatch(deleteVideo(video))
+    await dispatch(fetchVideos())
     setDeleteLoad(false)
-    navigate("/video")
-     window.location.reload()
 }
 
   return (
     <div>
-      <DenseAppBar />
-      <Box sx={{ marginTop: { xs: 11, sm: 15 }, marginLeft: {xs: 3,sm: 20}  }}>
+      <Container sx={{ marginLeft: {lg: -10}}}>
            <Typography sx={{ marginBottom: 4, marginLeft: {xs:4, sm: 40} }} variant="h5" color="text.secondary">
               {video?.title}
               </Typography>
@@ -80,23 +112,18 @@ const handleDelete = async() => {
                   ) : null
                 }
               </Box>
-            <Card sx={{ minWidth: 275, marginBottom: 5,height:{xs: 400, sm: "50%"}, width: { xs: '60%', sm: '70%' }}}>
-            <CardContent>
-             {
-              isAuthenticated ? (
+            <StyledCard >
+            <StyledCardContent>
                 <Box sx={{marginBottom: {xs: 2, sm: 2}, marginLeft: {xs:8, sm: 38} }}>
-                <Button
+                <StyledButton
                 variant='outlined'
                 size='small'
                 onClick={handleDelete}
                 
                   >
                     delete
-                  </Button>
-                  </Box>
-              ) : null
-             }
-            
+                  </StyledButton>
+              </Box>  
             <Box style={{ position: 'relative', paddingTop: paddingTopValue, marginBottom: 2 ,}}>
               {videoUrl ? (
                 <video 
@@ -125,9 +152,21 @@ const handleDelete = async() => {
             <Typography sx={{ marginTop: 5 }} variant="body2">
               {video?.description}
             </Typography>
-          </CardContent>
-        </Card>
-      </Box>
+            </StyledCardContent>
+           </StyledCard>
+           <Box>
+            <Typography variant="h6" gutterBottom sx={{ marginTop: 10, marginBottom: 3,textAlign: "center"}}>
+              Other Videos
+            </Typography>
+            </Box>
+            <Grid container spacing={2}>
+                { allVideos.map((otherVideo) => (
+                  <Grid item xs={12} md={6} sx={{ marginTop: 0, }}>
+                    <Video key={otherVideo._id}/>
+                  </Grid>
+                ))}
+            </Grid>
+      </Container>
     </div>
   );
 };
