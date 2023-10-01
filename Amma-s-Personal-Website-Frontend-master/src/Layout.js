@@ -191,7 +191,7 @@ function Layout(props) {
           <Toolbar/>
           { auth ? (
             <Button style={drawerButtonStyle} onClick={userButtonClicked}>
-            <PersonIcon sx={{ marginLeft: 0}} style={drawerIconStyle} /> Profile
+            <PersonIcon sx={{ marginLeft: -8}} style={drawerIconStyle} /> Profile
           </Button>
           ): null} 
           <Button style={drawerButtonStyle} onClick={homeButtonClicked}>
