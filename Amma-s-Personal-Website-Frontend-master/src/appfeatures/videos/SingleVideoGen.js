@@ -132,10 +132,7 @@ const handleClick = async(id) => {
               <Typography variant="h5" sx={{marginLeft: 10}}>
                 <Skeleton animation="wave" height={24} width="80%" />
               </Typography>
-              <Skeleton animation="wave" variant="rectangular" height={140} />
-              <Typography  sx={{marginLeft: 15}}>
-                <Skeleton animation="wave" variant='rectangular' height={32} width="40%" />
-              </Typography>
+              <Skeleton animation="wave" variant="rectangular" height={160} />
             </CardContent>
           </StyledCard>
           <StyledGrid container spacing={3}>
@@ -149,10 +146,11 @@ const handleClick = async(id) => {
           </Box>
          ) : (
             <Container sx={{ marginLeft: {lg: -10}}}>
-           <Typography sx={{ marginBottom: 4, textAlign: "center" }} variant="h5" color="text.secondary">
-              {video?.title}
-              </Typography>
+           
                 <StyledCard sx={{height: "auto"}}>
+                <Typography sx={{ marginBottom: 3, textAlign: "center" }} variant="h5" color="text.secondary">
+                 {video?.title}
+                 </Typography>
                 <StyledCardContent> 
                     {videoUrl ? (
                         <Box sx={{ height: "50vh", width: "auto"}}>
@@ -198,7 +196,7 @@ const handleClick = async(id) => {
                     <Typography sx={{marginTop: 4}} variant="body2" color="text.secondary">
                       {otherVideo.description}
                     </Typography>
-                    <StyledButton sx={{ width: "100px", position: "relative", left: {xs:150, lg: 120} }} onClick={() => handleClick(otherVideo._id)} variant="outlined" color="primary">
+                    <StyledButton sx={{ width: "100px", marginLeft: {xs: 5, lg: 15}}} onClick={() => handleClick(otherVideo._id)} variant="outlined" color="primary">
                       <PlayArrow/> Watch
                     </StyledButton>
                   </StyledCardContent>

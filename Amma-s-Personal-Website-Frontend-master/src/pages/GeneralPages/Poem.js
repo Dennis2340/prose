@@ -1,8 +1,8 @@
 // Update your Poem component
 import React, { useState } from 'react';
-import { Box, Typography, Grid, InputBase, IconButton, Button, Stack, Pagination } from '@mui/material';
+import { Box, Typography, Grid, InputBase, IconButton,} from '@mui/material';
 import PoemCard from '../../Components/GeneralPageCompnent/Card';
-import { useQuery,useQueryClient, useInfiniteQuery } from 'react-query';
+import { useQuery,useQueryClient,} from 'react-query';
 import { Search, Clear } from '@mui/icons-material';
 import SkeletonCard from '../../Components/SkeletonCard';
 import  { fetchPoemsQuery } from '../../appfeatures/poems/poemSlice';

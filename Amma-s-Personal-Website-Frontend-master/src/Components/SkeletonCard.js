@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardContent, Skeleton, Typography, Button } from '@mui/material';
+import { Card, CardContent, Skeleton, Typography,} from '@mui/material';
 import { styled } from '@mui/system';
 
 const StyledCard = styled(Card)(
@@ -20,11 +20,6 @@ const StyledCard = styled(Card)(
     })
   );
 
-  const StyledButton = styled(Button)(
-    ({ theme }) => ({
-      marginTop: theme.spacing(3),
-    })
-  );
 const SkeletonCard = () => {
   return (
     <StyledCard>
@@ -33,10 +28,10 @@ const SkeletonCard = () => {
           <Skeleton animation="wave" height={24} width="80%" />
         </Typography>
         <Skeleton animation="wave" variant="rectangular" height={140} />
-        <Typography variant="body2" sx={{marginLeft: {xs:13, lg: 20} }}>
+        <Typography variant="body2" sx={{marginLeft: {xs:10, lg: 20} }}>
           <Skeleton animation="wave" height={16} width="60%" />
         </Typography>
-        <Typography  sx={{marginLeft: {xs: 18,lg: 25} }}>
+        <Typography  sx={{marginLeft: {xs: 14,lg: 25} }}>
           <Skeleton animation="wave" variant='rectangular' height={32} width="40%" />
         </Typography>
       </CardContent>
