@@ -120,13 +120,13 @@ const SingleStoryGen = ({id}) => {
                   sx={{ marginBottom: 2 ,}}
                 >
                   <StyledCardContent>
-                    <Typography variant="h6" color="text.secondary" className='story-title'>
+                    <Typography variant="h5" color="text.secondary" className='story-title'>
                       {otherStory.storyTitle}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
                       {otherStory.storyGenre}
                     </Typography>
-                    <Typography variant="body2" className='story-title'>
+                    <Typography variant="body2" className='story-details'>
                       {otherStory.storyDetailed?.substring(0, 200) + '...'}
                     </Typography>
                     <Typography variant="body2" className='story-author'>
