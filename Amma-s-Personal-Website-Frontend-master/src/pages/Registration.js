@@ -5,7 +5,6 @@ import {Button} from '@mui/material';
 import { addNewUser } from '../appfeatures/about/aboutSlice';
 import { useFormik } from 'formik';
 import { useDispatch } from "react-redux"
-import LinearProgress from '@mui/material/LinearProgress';
 import { MyContext } from '../Layout';
 import Swal from "sweetalert2";
 
@@ -44,7 +43,7 @@ const Registration = (props) => {
             setActive("Login")
             Toast.fire({
               icon: 'success',
-              title: 'Login successful',
+              title: 'SignUp Completed',
               
             });
            } catch (error) {
@@ -159,17 +158,8 @@ const Registration = (props) => {
                 >
                     SignUp
                 </Button>
-
             </Box>
-            {
-            loading === true ? <Box sx={{marginTop: 4}}>
-              
-              <LinearProgress/>
-              
-              </Box> : null
-          }
         </Box>
-       
     </Box>
     );
 };

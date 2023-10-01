@@ -32,8 +32,8 @@ const LoginPage = ({handleUserDetails}) => {
       try {
         setLoading(true);
         const response = await dispatch(Login(values));
-       
-        handleUserDetails(response.payload)
+        console.log(response);
+        handleUserDetails(response.payload);
         setLoading(false);
         setActive("Home") 
         Toast.fire({

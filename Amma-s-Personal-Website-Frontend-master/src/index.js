@@ -7,11 +7,12 @@ import reportWebVitals from './reportWebVitals';
 import { BrowserRouter,} from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { ReactQueryProvider } from './react_query';
-
+import ErrorBoundary from './ErrorBoundary';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(
   <React.StrictMode>
+    <ErrorBoundary>
     <Provider store={store}>
     <BrowserRouter>
     <ReactQueryProvider>
@@ -19,6 +20,7 @@ root.render(
     </ReactQueryProvider>
       </BrowserRouter> 
     </Provider>
+    </ErrorBoundary>
     
     
   </React.StrictMode>

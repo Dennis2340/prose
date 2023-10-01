@@ -15,13 +15,15 @@ import { VideoComp } from '../../Components/GeneralPageCompnent/Video';
 import { PlayArrow } from '@mui/icons-material';
 import { useQuery, useQueryClient } from 'react-query';
 import ReactPlayer from 'react-player';
+import SkeletonCard from '../../Components/SkeletonCard';
 
 const StyledCard = styled(Card)(
   ({ theme }) => ({
     width: '100%',
     textAlign: 'center',
-    maxWidth: 500,
+    minWidth: "auto",
     height: '50vh',
+    postion: 'relative',
     margin: 'auto',
     boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
     transition: '0.3s',
@@ -31,9 +33,17 @@ const StyledCard = styled(Card)(
   })
 );
 
+const StyledGrid = styled(Grid)(
+    ({ theme }) => ({
+      marginTop: theme.spacing(4),
+    })
+  );
+
 const StyledCardContent = styled(CardContent)(
   ({ theme }) => ({
-    padding: theme.spacing(2),
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100%',
   })
 );
 
@@ -58,13 +68,24 @@ const SingleVideo = ({id}) => {
   const video =  videos.videos.find((video) => video._id === realId);
 
   
-  const allVideos = videos.videos
+  const allVideos = videos.videos.map((video) => {
+    const url = video.videoUrl
+    const filename = url.split("/")
+    const mainUrl = filename[filename.length - 1]
+    return {
+        _id: video._id,
+        title: video.title,
+        description: video.description,
+        videoUrl: mainUrl
+    }
+  })
 
+console.log(allVideos)
   useEffect(() => {
     const fetchVideoUrl = async () => {
       try {
         setIsLoad(true)
-        const response = await axios.get(`http://localhost:3600/video/getSingleVideo/${realId}`, {
+        const response = await axios.get(`https://backend-prose.onrender.com/video/getSingleVideo/${realId}`, {
           responseType: 'blob', // Set the response type to 'blob' to handle binary data
         });
         // Create a URL object from the received blob data
@@ -108,12 +129,15 @@ const handleClick = async(id) => {
     // } catch (error) {
     //   console.error('Error fetching video URL:', error);
     // }
+
+    
   }
 
   return (
     <div>
        {
         isLoad ? (
+            <Box sx={{marginLeft: {lg: -12} }}>
              <StyledCard>
             <CardContent>
               <Typography variant="h5" sx={{marginLeft: 10}}>
@@ -125,50 +149,74 @@ const handleClick = async(id) => {
               </Typography>
             </CardContent>
           </StyledCard>
-        ) : (
+          <StyledGrid container spacing={3}>
+          {Array.from({ length: 8 }).map((_, index) => (
+                <Grid item key={index} xs={12} sm={6} md={6}>
+                  <SkeletonCard />
+                </Grid>
+            ))
+         }
+          </StyledGrid>
+          </Box>
+         ) : (
             <Container sx={{ marginLeft: {lg: -10}}}>
-           <Typography sx={{ marginBottom: 4, }} variant="h5" color="text.secondary">
+           <Typography sx={{ marginBottom: 4, textAlign: "center" }} variant="h5" color="text.secondary">
               {video?.title}
               </Typography>
-              
-                <StyledCard >
+                <StyledCard sx={{height: "auto"}}>
                 <StyledCardContent> 
-                <Box >
                     {videoUrl ? (
-                        <ReactPlayer
-                        url={videoUrl}
-                        controls
-                        width="100%"
-                        height="100%"
-                        playing // Auto play the video
-                        muted // Mute the video (optional)
-                      />
-                    ) : (
-                        <div>
-                        <Box sx={{marginLeft: 4, marginBottom: 2, marginTop: -35}}>
-                            <Typography>
-                            Loading video...
-                            </Typography>
-                        </Box>
-                                    
-                        <Box sx={{marginLeft: {xs: 2, sm: 1}}}>
-                            <LinearProgress/>
-                        </Box>
-                        </div>
-                    )}
-                </Box>
+                        <Box sx={{ height: "50vh", width: "auto"}}>
+                        <ReactPlayer 
+                            url={videoUrl}
+                            controls
+                            width="100%"
+                            height="100%"
+                            playing
+                            muted
+                        /> 
+                        </Box>       
+                       ) : null}
                 <Typography sx={{ marginTop: 5 }} variant="body2">
                 {video?.description}
                 </Typography>
                 </StyledCardContent>
              </StyledCard>
-                 <Box>
-                {/* <Typography variant="h6" gutterBottom sx={{ marginTop: 10, marginBottom: 3,textAlign: "center"}}>
-                Other Videos
-                </Typography> */}
-                </Box>
-                
-                
+             <StyledGrid container spacing={3}>
+            {allVideos.map((otherVideo) => (
+              <Grid key={otherVideo._id} item xs={12} sm={6} md={6} lg={6}>
+                <StyledCard sx={{height: "auto"}} variant="outlined">
+                  <StyledCardContent>
+                    <Typography variant="h6" color="text.secondary">
+                      {otherVideo.title}
+                    </Typography>
+                     <Box
+                     sx={{
+                        width: '100%',
+                        height: '100%',
+                        marginTop: 1,
+                     }} 
+                     >
+                     <ReactPlayer
+                        url={otherVideo.videoUrl}
+                        controls
+                        width="100%"
+                        height="100%"
+                        playing
+                        muted
+                        />
+                     </Box>
+                    <Typography sx={{marginTop: 4}} variant="body2" color="text.secondary">
+                      {otherVideo.description}
+                    </Typography>
+                    <StyledButton sx={{ width: "100px", position: "relative", left: {xs:150, lg: 120} }} onClick={() => handleClick(otherVideo._id)} variant="outlined" color="primary">
+                      <PlayArrow/> Watch
+                    </StyledButton>
+                  </StyledCardContent>
+                </StyledCard>
+              </Grid>
+            ))}
+          </StyledGrid>     
         </Container>
         )
        }

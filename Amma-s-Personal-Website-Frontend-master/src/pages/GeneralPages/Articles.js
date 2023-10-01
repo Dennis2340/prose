@@ -13,7 +13,7 @@ const Articles = ({articleId}) => {
   const [searchTerm, setSearchTerm] = useState('');
 
   const filteredPoems = isSuccess
-  ? articles.article.filter((article) =>
+  ? articles?.article?.filter((article) =>
       article.articleTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
       article.articleGenre.toLowerCase().includes(searchTerm.toLowerCase()) ||
       article.articleAuthor.toLowerCase().includes(searchTerm.toLowerCase()) ||

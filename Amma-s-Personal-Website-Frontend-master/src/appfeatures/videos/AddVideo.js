@@ -1,18 +1,65 @@
-import React, { useContext, useState } from 'react';
-import PropTypes from 'prop-types';
+import React, { useContext, } from 'react';
 import { TextField, Button, Box, Typography, Input } from '@mui/material';
-import DenseAppBar from '../../Components/BasicBar';
 import { useFormik } from 'formik';
-import { useDispatch } from 'react-redux';
-import { addNewVideo, fetchVideos } from './videoSlice';
-import { useNavigate } from 'react-router-dom';
-import LinearProgress from '@mui/material/LinearProgress'
+import { addNewVideoQuery, } from './videoSlice';
 import { MyAdminContext } from '../../pages/Admin';
+import { useMutation, useQueryClient, } from 'react-query';
+import Swal from "sweetalert2";
 
 const AddVideo = () => {
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const [addRequestStatus, setAddRequestStatus] = useState('idle');
+
+  const Toast = Swal.mixin({
+    toast: true,
+    position: 'center',
+    timer: 3000,
+    timerProgressBar: true,
+    showConfirmButton: false,
+    
+  })
+
+  const queryClient = useQueryClient()
+  const addNewVideoMutation = useMutation(addNewVideoQuery, {
+    onMutate: async (newVideoData) => {
+      // Optimistically add the new poem to the cache
+      queryClient.setQueryData('videos', (oldData) => {
+        console.log(oldData)
+        return {
+          ...oldData,
+          data: [
+            ...(oldData?.videos || []),
+            {
+              _id: 'temp-id', // Generate a temporary ID for the optimistic update
+              ...newVideoData,
+            },
+          ],
+        };
+      });
+    },
+    onError: (error) => {
+        Toast.fire({
+            icon: 'error',
+            title: 'Error',
+            text: error.message,
+        })
+      console.error('Error adding new Video:', error);
+    },
+    onSuccess: (data, variables, context) => {
+        // Assuming your backend returns a success status code (e.g., 200)
+          // Display a success toast
+          Toast.fire({
+            icon: 'success',
+            title: 'Video Added Successfully',
+            text: data.message,
+          });
+        
+      },
+    onSettled: () => {
+      // Refetch the poems after the mutation is settled
+      queryClient.invalidateQueries('videos');
+    },
+  });
+
+
   const [active, setActive] = useContext(MyAdminContext)
   const formik = useFormik({
     initialValues: {
@@ -22,9 +69,8 @@ const AddVideo = () => {
     },
     onSubmit: async(values) => {
       try {
-        setAddRequestStatus('pending');
-        await dispatch(addNewVideo(values));
-        await dispatch(fetchVideos())
+        await addNewVideoMutation.mutateAsync(values); // Use the mutation function
+        formik.resetForm(); // Reset the form
         setActive("Videos")
       } catch (error) {
         console.log(error.message);
@@ -93,13 +139,6 @@ const AddVideo = () => {
               Add Video
             </Button>
           </Box>
-          {
-            addRequestStatus === "pending" ? <Box sx={{marginTop: 4}}>
-              
-              <LinearProgress/>
-              
-              </Box> : null
-          }
         </Box>
       </Box>
     </div>

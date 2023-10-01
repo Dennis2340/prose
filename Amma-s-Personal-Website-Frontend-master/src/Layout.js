@@ -2,10 +2,10 @@ import React, { createContext, } from 'react';
 import PropTypes from 'prop-types';
 import AppBar from '@mui/material/AppBar';
 import Grid from '@mui/material/Grid';
-import Link from '@mui/material/Link';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
+import { HistoryEdu } from '@mui/icons-material';
 import MenuIcon from '@mui/icons-material/Menu';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
@@ -13,7 +13,6 @@ import Container from '@mui/material/Container';
 import Button from '@mui/material/Button';
 import PersonIcon from '@mui/icons-material/Person';
 import LockIcon from '@mui/icons-material/Lock';
-import { Divider } from '@mui/material';
 import Home from './pages/GeneralPages/Home';
 import { Poem } from "./pages/GeneralPages/Poem"
 import { Articles } from "./pages/GeneralPages/Articles"
@@ -55,12 +54,14 @@ const drawerIconStyle = {
 };
 
 export const MyContext  = createContext()
+export const AuthContext  = createContext()
 
 function Layout(props) {
   const { window } = props;
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [active, setActive] = React.useState('Home');
 
+  const [auth, setAuth] = React.useState(false)
   const [loginDetails, setLoginDetails] = React.useState({})
   const [idState, setIdState] = React.useState({
     poemIdState: "",
@@ -71,7 +72,11 @@ function Layout(props) {
   })
 
   const handleUserDetails = (details) => {
-    setLoginDetails(details)
+    console.log(details);
+    if(details?.token){
+      setAuth(true)
+    }
+    setLoginDetails(details.user)
 
   }
   
@@ -165,6 +170,7 @@ function Layout(props) {
 
   return (
     <MyContext.Provider value={[active, setActive]}>
+      <AuthContext.Provider value={{auth}}>
      <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <Grid container spacing={2} sx={{ minHeight: '100vh' }}>
         <Grid item xs={12} sm={3}>
@@ -182,9 +188,11 @@ function Layout(props) {
           }}
         >
           <Toolbar/>
-          <Button style={drawerButtonStyle} onClick={userButtonClicked}>
+          { auth ? (
+            <Button style={drawerButtonStyle} onClick={userButtonClicked}>
             <PersonIcon sx={{ marginLeft: 0}} style={drawerIconStyle} /> Profile
-          </Button> 
+          </Button>
+          ): null} 
           <Button style={drawerButtonStyle} onClick={homeButtonClicked}>
             <HomeIcon style={drawerIconStyle} /> Home
           </Button>
@@ -231,9 +239,11 @@ function Layout(props) {
               open
             >
               <Toolbar />
-              <Button style={drawerButtonStyle} onClick={() => setActive('Users')}>
+              { auth ? (
+                <Button style={drawerButtonStyle} onClick={userButtonClicked}>
                 <PersonIcon sx={{ marginLeft: 0}} style={drawerIconStyle} /> Profile
-              </Button>
+                </Button>
+              ): null} 
               <Button style={drawerButtonStyle} onClick={() => setActive('Home')}>
                 <HomeIcon style={drawerIconStyle} /> Home
               </Button>
@@ -280,10 +290,16 @@ function Layout(props) {
             >
               <MenuIcon />
             </IconButton>
-            <Typography sx={{color: 'navy' }} variant="h6" component="div">
-              yoo
-            </Typography>
-            <Box sx={{ display: 'flex' }}>
+            <HistoryEdu sx={{ fontSize: '2rem', marginRight: '0.5rem', color: 'navy', marginLeft: auth ? 3 :null }} />
+            <Typography
+            sx={{ color: 'navy', flexGrow: 1, fontWeight: 'bold', fontSize: auth? '1.5rem': '1.2rem', }}
+            variant="h6"
+            component="div"
+            >
+            Explore & Inspire
+          </Typography>
+            { !auth ? (
+              <Box sx={{ display: 'flex' }}>
               <Button
                 variant="outlined"
                 onClick={() => setActive("SignUp")}
@@ -299,6 +315,7 @@ function Layout(props) {
                 <LockIcon /> Login
               </Button>
             </Box>
+            ) : null}
           </Toolbar>
         </Container>
       </AppBar>
@@ -400,6 +417,7 @@ function Layout(props) {
       
       </Grid>
      </Box>
+     </AuthContext.Provider>
     </MyContext.Provider>
   );
 }

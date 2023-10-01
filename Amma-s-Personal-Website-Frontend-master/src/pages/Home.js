@@ -120,6 +120,7 @@ useEffect(() => {
           title = "View Users"
           description= "check out various people who uses this as a source of entertainment"
           handleClick={() => setActive("Users")}
+          imageUrl={`http:/localhost:3600/user/userImage/${mainUrl[0]}`}
           />
         </Grid>
         </Grid>

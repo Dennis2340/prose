@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import api from "../../api";
-const MOTMSG_URL = "http://localhost:3600/motivationalmessage"
+const MOTMSG_URL = "https://backend-prose.onrender.com/motivationalmessage"
 
 const initialState = {
     motmessages: [],

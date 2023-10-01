@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import api from "../../api";
-const VIDEO_URL = "http://localhost:3600/video"
+const VIDEO_URL = "https://backend-prose.onrender.com/video"
 
 const initialState = {
     videos: [],
@@ -34,6 +34,22 @@ export const addNewVideo = createAsyncThunk("video/addNewVideo", async(initialVi
     }
     
  })
+
+ export const addNewVideoQuery = async(initialVideo) => {
+  try {
+   const response = await api.post(VIDEO_URL + "/addVideo", initialVideo,
+   { headers: {
+    'Content-Type': 'multipart/form-data',
+    'Accept': 'application/json, text/plain, video/*'
+  }}
+   )
+   
+   return response.data   
+ } catch (error) {
+    return error.message
+  }
+  
+}
 
  export const deleteVideo = createAsyncThunk("video/deleteVideo", async(initialVideo) => {
     try {

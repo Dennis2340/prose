@@ -3,7 +3,7 @@ import { Box,Grid, Typography } from '@mui/material';
 import BasicCard from '../../Components/BasicCardHome';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchUser, getUserStatus,getUserInfo  } from '../../appfeatures/about/aboutSlice';
-import { MyContext } from '../../Layout';
+import { MyContext, AuthContext } from '../../Layout';
 const Home = () => {
 
   const dispatch = useDispatch()
@@ -11,7 +11,7 @@ const userStatus = useSelector(getUserStatus)
 const userList = useSelector(getUserInfo)
 
 const [active,setActive ] = useContext(MyContext)
-
+const {auth} = useContext(AuthContext)
   useEffect(() => {
     if(userStatus === "idle"){
       
@@ -122,14 +122,15 @@ useEffect(() => {
             handleClick={() => setActive("Videos")}
           />
         </Grid>
-        <Grid item xs={12} sm={6} md={6} lg={4}>
+        { auth ? (
+          <Grid item xs={12} sm={6} md={6} lg={4}>
           <BasicCard
           title = "Manage your details here"
           description= "you can edit your details here"
-          imageUrl={`http:/localhost:3600/user/userImage/${mainUrl[0]}`}
           handleClick={() => setActive("Users")}
           />
         </Grid>
+        ) : null}
         </Grid>
       
     </Box>

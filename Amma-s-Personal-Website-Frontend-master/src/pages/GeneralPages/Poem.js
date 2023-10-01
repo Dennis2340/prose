@@ -16,7 +16,7 @@ const Poem = ({ poemId }) => {
 
   
   const filteredPoems = isSuccess 
-  ?      poems.poems.filter(
+  ?      poems?.poems?.filter(
           (poem) =>
             poem.poemTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
             poem.poemGenre.toLowerCase().includes(searchTerm.toLowerCase()) ||

@@ -20,7 +20,7 @@ const Video = ({videoId}) => {
     ));
    }
    else if(isSuccess){
-   const orderedVideo = videos.videos.slice().sort((a,b) => {
+   const orderedVideo = videos?.videos?.slice().sort((a,b) => {
     return new Date(b.createdAt) - new Date(a.createdAt);
   })
 

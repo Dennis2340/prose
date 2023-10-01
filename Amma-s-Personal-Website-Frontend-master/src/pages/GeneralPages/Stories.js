@@ -14,7 +14,7 @@ const Stories = ({storyId}) => {
   const [searchTerm, setSearchTerm] = useState('');
 
   const filteredPoems = isSuccess
-  ? storys.story.filter((story) =>
+  ? storys?.story?.filter((story) =>
       story.storyTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
       story.storyGenre.toLowerCase().includes(searchTerm.toLowerCase()) ||
       story.storyAuthor.toLowerCase().includes(searchTerm.toLowerCase()) ||

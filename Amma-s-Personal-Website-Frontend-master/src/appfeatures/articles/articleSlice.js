@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import api from "../../api";
-const ARTICLE_URL = "http://localhost:3600/article"
+const ARTICLE_URL = "https://backend-prose.onrender.com/article"
 
 const initialState = {
     articles: [],

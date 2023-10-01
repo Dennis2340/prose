@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import api from "../../api";
-const POEM_URL = "http://localhost:3600/poem"
+const POEM_URL = "https://backend-prose.onrender.com/poem"
 
 const initialState = {
     poems: [],

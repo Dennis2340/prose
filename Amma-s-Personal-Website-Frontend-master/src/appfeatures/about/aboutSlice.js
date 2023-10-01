@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import api from "../../api";
-const USER_URL = "http://localhost:3600/user"
+const USER_URL = "https://backend-prose.onrender.com/user"
 
 const initialState = {
     user: [],
@@ -37,7 +37,7 @@ export const addNewUser = createAsyncThunk("user/addNewUser", async(initialUser)
      
      const token = response.data.token;
      localStorage.setItem('token', token);
-     return response.data.user   
+     return response.data   
    } catch (error) {
       return error.message
     }

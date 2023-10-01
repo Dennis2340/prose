@@ -32,7 +32,7 @@ const StyledButton = styled(Button)(
 const BasicCard = ({ title, description, imageUrl, handleClick }) => {
   return (
     <StyledCard sx={{ height: '100%' }}>
-       {imageUrl && (<CardMedia component="img" image={imageUrl} alt={title} height="140" />)}
+       {imageUrl ? (<CardMedia component="img" image={imageUrl} alt={title} height="140" />) : null}
       <StyledCardContent>
         <Typography variant="h5" component="div">
           {title}

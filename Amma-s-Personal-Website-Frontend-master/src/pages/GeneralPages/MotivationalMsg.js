@@ -13,7 +13,7 @@ const MotivationalMsg = ({motmsgId}) => {
   const [searchTerm, setSearchTerm] = useState('');
 
   const filteredPoems = isSuccess
-  ? motmsg.motMessages.filter((motmsg) =>
+  ? motmsg?.motMessages?.filter((motmsg) =>
       motmsg.motMessageTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
       motmsg.motMessageGenre.toLowerCase().includes(searchTerm.toLowerCase()) ||
       motmsg.motMessageAuthor.toLowerCase().includes(searchTerm.toLowerCase()) ||
