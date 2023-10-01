@@ -1,10 +1,5 @@
-import React, {useState, useEffect,useContext} from 'react';
-import PropTypes from 'prop-types';
-import DenseAppBar from '../../Components/BasicBar';
+import React, {useState,useContext} from 'react';
 import { Box, Card, CardContent, Typography, Button, Container, Grid } from '@mui/material';
-import { useParams, NavLink } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
-import { fetchArticles, getAllArticles,selectArticleById } from './articleSlice';
 import { styled } from '@mui/system';
 import { MyAdminContext } from '../../pages/Admin';
 import { useQueryClient } from 'react-query';

@@ -8,7 +8,7 @@ import Swal from "sweetalert2";
 
 const EditPoem = ({id}) => {
     
-    const { data: poems, isLoading, isError, error } = useQuery('poems', fetchPoemsQuery, {
+    const { data: poems } = useQuery('poems', fetchPoemsQuery, {
         initialData: {
           poems: [],
         },
@@ -56,7 +56,7 @@ const EditPoem = ({id}) => {
             });
             console.error('Error updating poem:', error);
           },
-          onSuccess: (data) => {
+          onSuccess: () => {
             Toast.fire({
               icon: 'success',
               title: 'Poem Updated Successfully',

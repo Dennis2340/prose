@@ -1,8 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react';
-import PropTypes from 'prop-types';
-import DenseAppBar from '../../Components/BasicBar';
 import { Box, Button, Card, CardContent, Typography } from '@mui/material';
-import { useNavigate, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { deleteVideo, fetchVideos, selectVideoById, getAllVideos } from './videoSlice';
 import LinearProgress from '@mui/material/LinearProgress';
@@ -45,7 +42,7 @@ const SingleVideo = ({id}) => {
 
   const [idState, setIdState] = useState("")
   const dispatch = useDispatch()
-  const navigate = useNavigate()
+ 
   const [active, setActive] = useContext(MyAdminContext)
   
   const [videoUrl, setVideoUrl] = useState('');

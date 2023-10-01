@@ -1,10 +1,9 @@
-import React, {useState, useContext} from 'react';
+import React, {useContext} from 'react';
 import { Box } from '@mui/material';
 import { TextField, Typography, Button } from '@mui/material';
 import { useFormik } from 'formik';
 import { Login,} from '../appfeatures/about/aboutSlice';
 import { useDispatch } from 'react-redux';
-import LinearProgress from '@mui/material/LinearProgress';
 import { MyContext } from '../Layout';
 import Swal from "sweetalert2";
 
@@ -20,7 +19,6 @@ const LoginPage = ({handleUserDetails}) => {
     showConfirmButton: false,
     
   })
-  const [loading, setLoading] = useState(false);
   
   const [active, setActive] = useContext(MyContext);
   const formik = useFormik({
@@ -30,11 +28,9 @@ const LoginPage = ({handleUserDetails}) => {
     },
     onSubmit: async(values) => {
       try {
-        setLoading(true);
         const response = await dispatch(Login(values));
         console.log(response);
         handleUserDetails(response.payload);
-        setLoading(false);
         setActive("Home") 
         Toast.fire({
           icon: 'success',

@@ -1,6 +1,5 @@
 import React, { useContext, useState } from 'react';
 import { Box, Card, CardContent, Typography, Container, Grid,Button } from '@mui/material';
-import { useDispatch } from 'react-redux';
 import { styled } from '@mui/system';
 import { MyContext } from '../../Layout';
 import {  useQueryClient } from 'react-query';
@@ -64,7 +63,7 @@ const SingleStoryGen = ({id}) => {
 
     const storys = queryClient.getQueryData("storyCache")
     
-    const dispatch = useDispatch();
+   
     const [active, setActive] = useContext(MyContext)
     const allStories = storys.story
   

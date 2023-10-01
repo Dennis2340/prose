@@ -1,18 +1,18 @@
 import React, { useContext } from 'react';
 import { TextField, Button,Box, Typography } from '@mui/material';
 import { useFormik } from 'formik';
-import { addNewMotMsgQuery, fetchMotMsgQuery } from './motmsgSlice';
+import { addNewMotMsgQuery } from './motmsgSlice';
 import { MyAdminContext } from '../../pages/Admin';
-import { useMutation, useQueryClient, useQuery } from 'react-query';
+import { useMutation, useQueryClient } from 'react-query';
 import Swal from "sweetalert2";
 
 const AddMotMsg = props => {
 
-    const { data: motmsgs, isLoading, isError, error } = useQuery('motmsgs', fetchMotMsgQuery, {
-        initialData: {
-          motmsgs: [],
-        },
-      });
+    // const { data: motmsgs, isLoading, isError, error } = useQuery('motmsgs', fetchMotMsgQuery, {
+    //     initialData: {
+    //       motmsgs: [],
+    //     },
+    //   });
 
     const Toast = Swal.mixin({
         toast: true,

@@ -1,10 +1,8 @@
-import React, { useContext, useState, memo } from 'react';
+import React, { useContext, useState, } from 'react';
 import { Box, Card, CardContent, Typography, Container, Grid,Button } from '@mui/material';
-import { useDispatch } from 'react-redux';
-import { fetchPoemsQuery } from './poemSlice';
 import { styled } from '@mui/system';
 import { MyContext } from '../../Layout';
-import { useQuery, useQueryClient } from 'react-query';
+import { useQueryClient } from 'react-query';
 
 const StyledCard = styled(Card)(
     ({ theme }) => ({

@@ -1,4 +1,4 @@
-import React, {useState, useContext} from 'react';
+import React, {useContext} from 'react';
 import { Box, Typography } from '@mui/material';
 import { TextField } from '@mui/material';
 import {Button} from '@mui/material';
@@ -23,7 +23,6 @@ const Registration = (props) => {
       
     })
 
-    const [loading, setLoading] = useState(false)
     
     const formik = useFormik({
         initialValues: {
@@ -37,9 +36,7 @@ const Registration = (props) => {
         },
         onSubmit: async(values) => {
            try {
-            setLoading(true)
             await dispatch(addNewUser(values))
-            setLoading(false);
             setActive("Login")
             Toast.fire({
               icon: 'success',

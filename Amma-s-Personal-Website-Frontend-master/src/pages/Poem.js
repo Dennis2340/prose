@@ -3,7 +3,7 @@ import { Box, Typography, Grid, InputBase, IconButton } from '@mui/material';
 import { fetchPoemsQuery,  } from '../appfeatures/poems/poemSlice';
 import LinearIndeterminate from '../Components/LoadingPage';
 import PoemCard from '../Components/Card';
-import { useQuery, useQueryClient, useInfiniteQuery } from 'react-query';
+import { useQuery, useQueryClient,} from 'react-query';
 import Search from '@mui/icons-material/Search';
 
 const Poem = ({poemId}) => {

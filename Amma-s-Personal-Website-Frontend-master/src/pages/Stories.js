@@ -1,7 +1,6 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Box, Typography, Grid,} from '@mui/material';
-import { useSelector, useDispatch } from "react-redux"
-import { fetchStoryQuery,getAllStories, getStoryStatus } from '../appfeatures/stories/storySlice';
+import { fetchStoryQuery,} from '../appfeatures/stories/storySlice';
 import LinearIndeterminate from '../Components/LoadingPage';
 import StoryCard from '../Components/StoryCard';
 import { useQuery, useQueryClient } from 'react-query';
@@ -24,7 +23,7 @@ const Stories = ({storyId}) => {
    const orderedStory = stories.story.slice().sort((a,b) => {
     return new Date(b.createdAt) - new Date(a.createdAt);
   })
-   
+
   content = orderedStory.map((story, index) => (
     <Grid item key={`${story._id}-${index}`} xs={12} sm={6} md={6}>
       <StoryCard story={story} storyId={storyId}/>

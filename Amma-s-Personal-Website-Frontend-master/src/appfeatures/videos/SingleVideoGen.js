@@ -1,19 +1,13 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { Box, Button, Card, CardContent, Typography, Skeleton } from '@mui/material';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import { deleteVideo, fetchVideosQuery, selectVideoById, getAllVideos } from './videoSlice';
-import LinearProgress from '@mui/material/LinearProgress';
+import { fetchVideosQuery,} from './videoSlice';
 import axios from 'axios';
-import useMediaQuery from '@mui/material/useMediaQuery';
-import { useTheme } from '@mui/material/styles';
 import { useDispatch } from 'react-redux';
 import { Container, styled } from '@mui/system';
 import { MyContext } from '../../Layout';
 import Grid from '@mui/system/Unstable_Grid/Grid';
-import { VideoComp } from '../../Components/GeneralPageCompnent/Video';
 import { PlayArrow } from '@mui/icons-material';
-import { useQuery, useQueryClient } from 'react-query';
+import { useQuery,} from 'react-query';
 import ReactPlayer from 'react-player';
 import SkeletonCard from '../../Components/SkeletonCard';
 
@@ -55,7 +49,7 @@ const StyledButton = styled(Button)(
 
 const SingleVideo = ({id}) => {
 
-    const { data: videos, isLoading, isError, error, isSuccess } = useQuery('videos', fetchVideosQuery); // Replace 'fetchStories' with your fetch function
+    const { data: videos, } = useQuery('videos', fetchVideosQuery); // Replace 'fetchStories' with your fetch function
 
   const [idState, setIdState] = useState("")
   const dispatch = useDispatch()
@@ -103,11 +97,6 @@ console.log(allVideos)
   }, [realId, dispatch, id]);
 
  
-  const theme = useTheme();
-  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
-
-const paddingTopValue = isSmallScreen ? '150%' : '56.46%';
-
 const handleClick = async(id) => {
     console.log(id)
     setActive("SingleVideo")

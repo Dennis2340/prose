@@ -21,7 +21,7 @@ const {auth} = useContext(AuthContext)
    }, [userStatus,dispatch])
 
     
-    const isAuthenticated = useSelector((state) => state.user.isAuthenticated);
+  
   const [mainUrl, setMainUrl] = useState("");
 
 useEffect(() => {

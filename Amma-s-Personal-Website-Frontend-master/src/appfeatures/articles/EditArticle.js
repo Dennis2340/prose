@@ -8,7 +8,7 @@ import Swal from "sweetalert2";
 
 const EditArticle = ({id}) => {
 
-    const { data: articles, isLoading, isError, error } = useQuery('articles', fetchArticleQuery, {
+    const { data: articles } = useQuery('articles', fetchArticleQuery, {
         initialData: {
           articles: [],
         },

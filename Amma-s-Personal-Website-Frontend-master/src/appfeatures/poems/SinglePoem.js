@@ -1,9 +1,8 @@
 import React, { useContext, useState } from 'react';
 import { Box, Card, CardContent, Typography, Container, Grid,Button } from '@mui/material';
-import { fetchPoemsQuery, } from './poemSlice';
 import { styled } from '@mui/system';
 import { MyAdminContext } from '../../pages/Admin';
-import { useQuery,useQueryClient } from 'react-query';
+import { useQueryClient } from 'react-query';
 
 const StyledCard = styled(Card)(
   ({ theme }) => ({
