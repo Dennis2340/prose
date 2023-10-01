@@ -277,6 +277,7 @@ function Layout(props) {
         sx={{
           width: { sm: `calc(100% - ${drawerWidth}px)` },
           ml: { sm: `${drawerWidth}px` },
+          
         }}
       >
         <Container maxWidth="lg">
@@ -292,7 +293,7 @@ function Layout(props) {
             </IconButton>
             <HistoryEdu sx={{ fontSize: '2rem', marginRight: '0.5rem', color: 'navy', marginLeft: auth ? 3 :null }} />
             <Typography
-            sx={{ color: 'navy', flexGrow: 1, fontWeight: 'bold', fontSize: auth? '1.5rem': '1.2rem', }}
+            sx={{ color: 'navy', flexGrow: 1, fontWeight: 'bold', fontSize: auth? '1.5rem': '.72rem',}}
             variant="h6"
             component="div"
             >
@@ -406,7 +407,7 @@ function Layout(props) {
         }}
       >
         <Typography variant="body2" color="textSecondary">
-          &copy; {new Date().getFullYear()} Your App Name. All rights reserved.
+          &copy; {new Date().getFullYear()} Prose. All rights reserved.
         </Typography>
       </Box>
 
