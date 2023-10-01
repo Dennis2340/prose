@@ -41,7 +41,7 @@ const BasicCard = ({ title, description, imageUrl, handleClick }) => {
           {description}
         </Typography>
       </StyledCardContent>
-      <Box sx={{marginLeft: {xs: 9}, marginBottom: {xs: 2}}}>
+      <Box sx={{display: "flex", justifyContent: "center", alignContent: "center", marginBottom: {xs: 2} }}>
       <StyledButton size='small' onClick={handleClick}>
         Learn More
       </StyledButton>

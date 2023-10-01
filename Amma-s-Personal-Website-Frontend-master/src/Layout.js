@@ -184,6 +184,7 @@ function Layout(props) {
             keepMounted: true, // Better open performance on mobile.
           }}
           sx={{
+            
             '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth, },
           }}
         >
@@ -194,27 +195,27 @@ function Layout(props) {
           </Button>
           ): null} 
           <Button style={drawerButtonStyle} onClick={homeButtonClicked}>
-            <HomeIcon style={drawerIconStyle} /> Home
+            <HomeIcon sx={{marginLeft: -9}} style={drawerIconStyle} /> Home
           </Button>
          
           <Button style={drawerButtonStyle} onClick={poemButtonClicked}>
-            <BookIcon style={drawerIconStyle} /> Poems
+            <BookIcon sx={{marginLeft: -8}} style={drawerIconStyle} /> Poems
           </Button>
          
           <Button style={drawerButtonStyle} onClick={storyButtonClicked}>
-            <LibraryBooksIcon style={drawerIconStyle} /> Stories
+            <LibraryBooksIcon sx={{marginLeft: -7.5}} style={drawerIconStyle} /> Stories
           </Button>
           
           <Button style={drawerButtonStyle} onClick={articleButtonClicked}>
-            <DescriptionIcon style={drawerIconStyle} /> Articles
+            <DescriptionIcon sx={{marginLeft: -7.5}} style={drawerIconStyle} /> Articles
           </Button>
           
           <Button style={drawerButtonStyle} onClick={motmsgButtonClicked}>
-            <BookIcon style={drawerIconStyle} sx={{ marginLeft: 8}} /> Motivational_Msg
+            <BookIcon sx={{marginLeft: 1}} style={drawerIconStyle}  /> Motivational_Msg
           </Button>
           
           <Button style={drawerButtonStyle} onClick={videoButtonClicked}>
-            <VideoLibraryIcon sx={{ marginLeft: 0}} style={drawerIconStyle} /> Videos
+            <VideoLibraryIcon sx={{marginLeft: -7.5}}  style={drawerIconStyle} /> Videos
           </Button>
             
         </Drawer>
@@ -289,11 +290,11 @@ function Layout(props) {
               onClick={handleDrawerToggle}
               sx={{ display: { sm: 'none' }, marginLeft: -4 , color: 'white' }}
             >
-              <MenuIcon />
+              <MenuIcon sx={{alignItems: "center"}}/>
             </IconButton>
             <HistoryEdu sx={{ fontSize: '2rem', marginRight: '0.5rem', color: 'navy', marginLeft: auth ? 3 :null }} />
             <Typography
-            sx={{ color: 'navy', flexGrow: 1, fontWeight: 'bold', fontSize: auth? '1.5rem': '.72rem',}}
+            sx={{ color: 'navy', flexGrow: 1, fontWeight: 'bold', fontSize: auth? '1.5rem': '1rem',}}
             variant="h6"
             component="div"
             >
