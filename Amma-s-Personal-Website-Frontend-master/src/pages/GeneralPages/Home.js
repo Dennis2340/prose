@@ -11,7 +11,7 @@ const userStatus = useSelector(getUserStatus)
 const userList = useSelector(getUserInfo)
 
 const [active,setActive ] = useContext(MyContext)
-const {auth} = useContext(AuthContext)
+const {isAuthenticated} = useContext(AuthContext)
   useEffect(() => {
     if(userStatus === "idle"){
       
@@ -122,15 +122,6 @@ useEffect(() => {
             handleClick={() => setActive("Videos")}
           />
         </Grid>
-        { auth ? (
-          <Grid item xs={12} sm={6} md={6} lg={4}>
-          <BasicCard
-          title = "Manage your details here"
-          description= "you can edit your details here"
-          handleClick={() => setActive("Users")}
-          />
-        </Grid>
-        ) : null}
         </Grid>
       
     </Box>

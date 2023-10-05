@@ -9,7 +9,7 @@ import Swal from "sweetalert2";
 
 const EditStory = ({id}) => {
 
-    const { data: storys, isLoading, isError, error } = useQuery('stories', fetchStoryQuery, {
+    const { data: storys } = useQuery('stories', fetchStoryQuery, {
         initialData: {
           storys: [],
         },

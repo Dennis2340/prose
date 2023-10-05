@@ -1,11 +1,11 @@
-import React, { createContext, } from 'react';
+import React, { createContext, useState, } from 'react';
 import PropTypes from 'prop-types';
 import AppBar from '@mui/material/AppBar';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
-import { HistoryEdu } from '@mui/icons-material';
+import { HistoryEdu, Logout } from '@mui/icons-material';
 import MenuIcon from '@mui/icons-material/Menu';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
@@ -18,7 +18,6 @@ import { Poem } from "./pages/GeneralPages/Poem"
 import { Articles } from "./pages/GeneralPages/Articles"
 import { Stories } from "./pages/GeneralPages/Stories"
 import { Video } from "./pages/GeneralPages/Video"
-import { About } from "./pages/GeneralPages/About"
 import { MotivationalMsg } from "./pages/GeneralPages/MotivationalMsg"
 // Import icons for the drawer
 import BookIcon from '@mui/icons-material/Book';
@@ -36,6 +35,12 @@ import { Registration } from './pages/Registration';
 import { LoginPage } from './pages/Login';
 import { SingleVideo } from './appfeatures/videos/SingleVideoGen';
 
+import {useKindeAuth} from "@kinde-oss/kinde-auth-react";
+import { Divider } from '@mui/material';
+import { Stack } from '@mui/material';
+import { blue, deepOrange } from '@mui/material/colors';
+import Avatar from '@mui/material/Avatar';
+import { useTheme } from '@mui/material';
 const drawerWidth = 240;
 
 
@@ -61,8 +66,11 @@ function Layout(props) {
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [active, setActive] = React.useState('Home');
 
+  //////////////////////////////// This is the third party library Auth
+  const { login, register } = useKindeAuth();
+
   const [auth, setAuth] = React.useState(false)
-  const [loginDetails, setLoginDetails] = React.useState({})
+  const { user, isAuthenticated, isLoading, logout } = useKindeAuth()
   const [idState, setIdState] = React.useState({
     poemIdState: "",
     storyIdState: "",
@@ -71,12 +79,14 @@ function Layout(props) {
     videoIdState: "",
   })
 
+  const theme = useTheme()
+
   const handleUserDetails = (details) => {
     console.log(details);
     if(details?.token){
       setAuth(true)
     }
-    setLoginDetails(details.user)
+  
 
   }
   
@@ -109,10 +119,7 @@ function Layout(props) {
     setMobileOpen(false)
     setActive("Videos")
   }
-  const userButtonClicked = () => {
-    setMobileOpen(false)
-    setActive("Users")
-  }
+
 
   const idCallback = (id) => {
     switch(active){
@@ -131,6 +138,20 @@ function Layout(props) {
     }
   }
 
+  const [disabled, setDisable] = useState(false)
+  const [disabledLogout, setDisableLogout] = useState(false)
+  const handleRegister = () => {
+    register()
+    setDisable(true)
+  }
+  const handleLogin = () => {
+    login()
+    setDisable(true)
+  }
+  const handleLogout = () => {
+    logout()
+    setDisableLogout(true)
+  }
   const container = window !== undefined ? () => window().document.body : undefined;
 
   const renderComponent = () => {
@@ -157,8 +178,6 @@ function Layout(props) {
         return <Video videoId={idCallback}/>; 
       case 'SingleVideo':
         return <SingleVideo id={idState.videoIdState}/>
-      case 'Users':
-        return <About loginDetails={loginDetails}/>; 
       case 'SignUp':
         return <Registration/>;
       case 'Login':
@@ -170,7 +189,7 @@ function Layout(props) {
 
   return (
     <MyContext.Provider value={[active, setActive]}>
-      <AuthContext.Provider value={{auth}}>
+      <AuthContext.Provider value={{isAuthenticated}}>
      <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <Grid container spacing={2} sx={{ minHeight: '100vh' }}>
         <Grid item xs={12} sm={3}>
@@ -188,36 +207,57 @@ function Layout(props) {
             '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth, },
           }}
         >
+          <Stack direction="column" spacing={1} justifyContent="flex-start">
           <Toolbar/>
-          { auth ? (
-            <Button style={drawerButtonStyle} onClick={userButtonClicked}>
-            <PersonIcon sx={{ marginLeft: -8}} style={drawerIconStyle} /> Profile
-          </Button>
+          { isAuthenticated ? (
+            <Stack direction="row" alignItems="center" spacing={3} sx={{ padding: 2, marginLeft: 2 }}>
+            <Avatar
+              alt={`${user.given_name} ${user.family_name}`}
+              
+              sx={{ width: 32, height: 32,
+                bgcolor: blue[500]  
+              }}
+            >{user.given_name[0]}</Avatar>
+                 <Box sx={{color: ""}}>
+                  <Typography variant='h6' color={"primary"}>
+                  {`${user.given_name} ${user.family_name ? user?.family_name : ""}`}
+                  </Typography>
+                  </Box>
+          </Stack>
           ): null} 
-          <Button style={drawerButtonStyle} onClick={homeButtonClicked}>
-            <HomeIcon sx={{marginLeft: -9}} style={drawerIconStyle} /> Home
-          </Button>
-         
-          <Button style={drawerButtonStyle} onClick={poemButtonClicked}>
-            <BookIcon sx={{marginLeft: -8}} style={drawerIconStyle} /> Poems
-          </Button>
-         
-          <Button style={drawerButtonStyle} onClick={storyButtonClicked}>
-            <LibraryBooksIcon sx={{marginLeft: -7.5}} style={drawerIconStyle} /> Stories
-          </Button>
-          
-          <Button style={drawerButtonStyle} onClick={articleButtonClicked}>
-            <DescriptionIcon sx={{marginLeft: -7.5}} style={drawerIconStyle} /> Articles
-          </Button>
-          
-          <Button style={drawerButtonStyle} onClick={motmsgButtonClicked}>
-            <BookIcon sx={{marginLeft: 1}} style={drawerIconStyle}  /> Motivational_Msg
-          </Button>
-          
-          <Button style={drawerButtonStyle} onClick={videoButtonClicked}>
-            <VideoLibraryIcon sx={{marginLeft: -7.5}}  style={drawerIconStyle} /> Videos
-          </Button>
-            
+          <Divider/>
+            <Stack direction="column" spacing={1}>
+            <Box sx={{display: "flex", justifyContent: "left"}}>
+              <Button style={drawerButtonStyle} onClick={homeButtonClicked}>
+                <HomeIcon style={drawerIconStyle} /> Home
+              </Button>
+            </Box>
+              <Button style={drawerButtonStyle} onClick={poemButtonClicked}>
+                <BookIcon style={drawerIconStyle} /> Poems
+              </Button>
+
+              <Button style={drawerButtonStyle} onClick={storyButtonClicked}>
+                <LibraryBooksIcon style={drawerIconStyle} /> Stories
+              </Button>
+
+              <Button style={drawerButtonStyle} onClick={articleButtonClicked}>
+                <DescriptionIcon style={drawerIconStyle} /> Articles
+              </Button>
+
+              <Button style={drawerButtonStyle} onClick={motmsgButtonClicked}>
+                <BookIcon sx={{ ...drawerIconStyle, marginLeft: 8 }} /> Motivational_Msg
+              </Button>
+
+              <Button style={drawerButtonStyle} onClick={videoButtonClicked}>
+                <VideoLibraryIcon style={drawerIconStyle} /> Videos
+              </Button>
+              {isAuthenticated ? (
+                    <Button disabled={disabledLogout} style={drawerButtonStyle} onClick={() => handleLogout()}>
+                    <Logout style={drawerIconStyle} /> Logout
+                  </Button>
+                  ): null}
+            </Stack>
+        </Stack>
         </Drawer>
         </Grid>
         <Grid item xs={0} sm={3}>
@@ -239,36 +279,56 @@ function Layout(props) {
               }}
               open
             >
+              <Stack direction="column" spacing={1} justifyContent="flex-start">
               <Toolbar />
-              { auth ? (
-                <Button style={drawerButtonStyle} onClick={userButtonClicked}>
-                <PersonIcon sx={{ marginLeft: 0}} style={drawerIconStyle} /> Profile
-                </Button>
+              { isAuthenticated ? (
+                <Stack direction="row" alignItems="center" spacing={3} sx={{ padding: 2 }}>
+                <Avatar
+                  alt={`${user.given_name} ${user?.family_name}`}
+                  sx={{
+                    bgcolor: blue[500]
+                  }}
+                >{user.given_name[0]}</Avatar>
+                <Box sx={{color: ""}}>
+                  <Typography variant='h6' color={"primary"}>
+                  {`${user.given_name} ${user.family_name ? user?.family_name : ""}`}
+                  </Typography>
+                  </Box>
+              </Stack>
               ): null} 
-              <Button style={drawerButtonStyle} onClick={() => setActive('Home')}>
-                <HomeIcon style={drawerIconStyle} /> Home
-              </Button>
-             
-              <Button style={drawerButtonStyle} onClick={() => setActive('Poems')}>
-                <BookIcon style={drawerIconStyle} /> Poems
-              </Button>
-             
-              <Button style={drawerButtonStyle} onClick={() => setActive('Stories')}>
-                <LibraryBooksIcon style={drawerIconStyle} /> Stories
-              </Button>
-             
-              <Button style={drawerButtonStyle} onClick={() => setActive('Articles')}>
-                <DescriptionIcon style={drawerIconStyle} /> Articles
-              </Button>
-             
-              <Button style={drawerButtonStyle} onClick={() => setActive('Motivational_Msg')}>
-                <BookIcon style={drawerIconStyle} sx={{ marginLeft: 8}} /> Motivational_Msg
-              </Button>
-             
-              <Button style={drawerButtonStyle}  onClick={() => setActive('Videos')}>
-                <VideoLibraryIcon style={drawerIconStyle} /> Videos
-              </Button>
-             
+              <Divider/>
+              <Stack direction="column" spacing={1}>
+                <Box>
+                  <Button style={drawerButtonStyle} onClick={() => setActive('Home')}>
+                    <HomeIcon style={drawerIconStyle} /> Home
+                  </Button>
+                </Box>
+                  <Button style={drawerButtonStyle} onClick={() => setActive('Poems')}>
+                    <BookIcon style={drawerIconStyle} /> Poems
+                  </Button>
+
+                  <Button style={drawerButtonStyle} onClick={() => setActive('Stories')}>
+                    <LibraryBooksIcon style={drawerIconStyle} /> Stories
+                  </Button>
+
+                  <Button style={drawerButtonStyle} onClick={() => setActive('Articles')}>
+                    <DescriptionIcon style={drawerIconStyle} /> Articles
+                  </Button>
+
+                  <Button style={drawerButtonStyle} onClick={() => setActive('Motivational_Msg')}>
+                    <BookIcon sx={{ ...drawerIconStyle, marginLeft: 8 }} /> Motivational_Msg
+                  </Button>
+
+                  <Button style={drawerButtonStyle} onClick={() => setActive('Videos')}>
+                    <VideoLibraryIcon style={drawerIconStyle} /> Videos
+                  </Button>
+                  {isAuthenticated ? (
+                    <Button disabled={disabledLogout} style={drawerButtonStyle} onClick={() => handleLogout()}>
+                    <Logout style={drawerIconStyle} /> Logout
+                  </Button>
+                  ): null}
+              </Stack>
+            </Stack>
             </Drawer>
           </Box>
           </Box>
@@ -292,27 +352,29 @@ function Layout(props) {
             >
               <MenuIcon sx={{alignItems: "center"}}/>
             </IconButton>
-            <HistoryEdu sx={{ fontSize: '2rem', marginRight: '0.5rem', color: 'navy', marginLeft: auth ? 3 :null }} />
+            <HistoryEdu sx={{ fontSize: '2rem', marginRight: '0.5rem', color: 'navy', marginLeft: isAuthenticated ? 3 :null }} />
             <Typography
-            sx={{ color: 'navy', flexGrow: 1, fontWeight: 'bold', fontSize: auth? '1.5rem': '1rem',}}
+            sx={{ color: 'navy', flexGrow: 1, fontWeight: 'bold', fontSize: isAuthenticated? '1.5rem': '1rem',}}
             variant="h6"
             component="div"
             >
             Explore & Inspire
           </Typography>
-            { !auth ? (
+            { !isAuthenticated ? (
               <Box sx={{ display: 'flex' }}>
               <Button
+                disabled={disabled}
                 variant="outlined"
-                onClick={() => setActive("SignUp")}
+                onClick={() => handleRegister()}
                 sx={{color: "navy", marginRight: -2  }}
               >
                <PersonIcon/> SignUp
               </Button>
               <Button
+                disabled={disabled}
                 variant="outlined"
                 sx={{ color: 'navy', marginRight: -4  }}
-                onClick={() => setActive('Login')}
+                onClick={() => handleLogin()}
               >
                 <LockIcon /> Login
               </Button>
